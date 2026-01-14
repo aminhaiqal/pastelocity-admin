@@ -7,6 +7,7 @@ import { ProductForm } from "@/components/products/product-form"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog"
 import { IconPlus } from "@tabler/icons-react"
+import { useState } from "react"
 
 const dummyProducts: Product[] = [
   {
@@ -38,7 +39,7 @@ const dummyProducts: Product[] = [
 export default function ProductsPage() {
   const [products, setProducts] = React.useState<Product[]>(dummyProducts)
   const [open, setOpen] = React.useState(false)
-
+  const [isCollectionOpen, setIsCollectionOpen] = useState(false);
   // handler when form is submitted
   const handleAddProduct = (values: Omit<Product, "id" | "createdAt" | "updatedAt">) => {
     const newProduct: Product = {
@@ -55,25 +56,35 @@ export default function ProductsPage() {
     <main className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Products</h1>
+        <div className="flex items-right gap-3">
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <IconPlus size={16} />
+                New Product
+              </Button>
+            </DialogTrigger>
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <IconPlus size={16} />
-              New Product
-            </Button>
-          </DialogTrigger>
 
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>New Product</DialogTitle>
-            </DialogHeader>
+            <DialogContent className="sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>New Product</DialogTitle>
+              </DialogHeader>
 
-            <ProductForm
-              onSubmit={handleAddProduct}
-            />
-          </DialogContent>
-        </Dialog>
+              <ProductForm
+                onSubmit={handleAddProduct}
+              />
+            </DialogContent>
+          </Dialog>
+          <Dialog open={isCollectionOpen} onOpenChange={setIsCollectionOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">New Collection</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>New Collection</DialogTitle></DialogHeader>
+              <ProductForm onSubmit={handleAddProduct} />
+            </DialogContent>
+          </Dialog></div>
       </div>
 
       <ProductGrid products={products} />

@@ -90,9 +90,9 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
           name="length"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Length</FormLabel>
+              <FormLabel>Length (in inches)</FormLabel>
               <FormControl>
-                <Input placeholder="2m" {...field} />
+                <Input placeholder="54inch" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
