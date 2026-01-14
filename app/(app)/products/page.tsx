@@ -11,7 +11,7 @@ import { useState } from "react"
 
 const dummyProducts: Product[] = [
   {
-    id: "prod_1",
+    id: 1,
     collection_id: "col_1",
     name: "Red Cotton Fabric",
     color: "Red",
@@ -24,7 +24,7 @@ const dummyProducts: Product[] = [
     updatedAt: "2024-01-05",
   },
   {
-    id: "prod_2",
+    id: 2,
     name: "Blue Silk Fabric",
     color: "Blue",
     quantity: 20,
@@ -39,12 +39,13 @@ const dummyProducts: Product[] = [
 export default function ProductsPage() {
   const [products, setProducts] = React.useState<Product[]>(dummyProducts)
   const [open, setOpen] = React.useState(false)
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [isCollectionOpen, setIsCollectionOpen] = useState(false);
   // handler when form is submitted
   const handleAddProduct = (values: Omit<Product, "id" | "createdAt" | "updatedAt">) => {
     const newProduct: Product = {
       ...values,
-      id: `prod_${Date.now()}`,
+      id: 14,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -56,7 +57,14 @@ export default function ProductsPage() {
     <main className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Products</h1>
-        <div className="flex items-right gap-3">
+        <div className="flex items-center gap-3">
+          {selectedIds.length > 0 && (
+            <input
+              type="text"
+              placeholder="Search selected collection..."
+              className="border rounded-md px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          )}
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2">
@@ -65,29 +73,26 @@ export default function ProductsPage() {
               </Button>
             </DialogTrigger>
 
-
             <DialogContent className="sm:max-w-lg">
               <DialogHeader>
                 <DialogTitle>New Product</DialogTitle>
               </DialogHeader>
 
-              <ProductForm
-                onSubmit={handleAddProduct}
-              />
-            </DialogContent>
-          </Dialog>
-          <Dialog open={isCollectionOpen} onOpenChange={setIsCollectionOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline">New Collection</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>New Collection</DialogTitle></DialogHeader>
               <ProductForm onSubmit={handleAddProduct} />
             </DialogContent>
-          </Dialog></div>
+          </Dialog>
+        </div>
       </div>
 
-      <ProductGrid products={products} />
+      <ProductGrid
+        products={products}
+        selectedIds={selectedIds}
+        onSelect={(id) =>
+          setSelectedIds((prev) =>
+            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+          )
+        }
+      />
     </main>
   )
 }
