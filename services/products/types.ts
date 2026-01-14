@@ -1,0 +1,28 @@
+export type ProductId = string
+
+export type Product = {
+  id: ProductId
+  collection_id?: string
+  name: string
+  color?: string
+  length?: string
+  quantity: number
+  price: number
+  cutting_type?: string
+  image_url?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type CreateProductInput = {
+  name: string
+  color: string
+  length?: number
+  quantity: number
+  price: number
+  image_url?: string
+}
+
+export type UpdateProductInput = Partial<CreateProductInput> & {
+  id: ProductId
+}
