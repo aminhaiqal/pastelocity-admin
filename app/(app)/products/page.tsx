@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Product } from "@/services/products/types"
-import ProductGrid from "@/components/products/product-list"
+import ProductGrid from "@/components/products/product-grid"
 import { ProductForm } from "@/components/products/product-form"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog"
