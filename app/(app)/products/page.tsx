@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog"
 import { IconPlus } from "@tabler/icons-react"
 import { useState } from "react"
+import { CollectionSearchBar } from "@/components/products/collection-search-bar"
 
 const dummyProducts: Product[] = [
   {
@@ -59,10 +60,11 @@ export default function ProductsPage() {
         <h1 className="text-2xl font-bold">Products</h1>
         <div className="flex items-center gap-3">
           {selectedIds.length > 0 && (
-            <input
-              type="text"
-              placeholder="Search selected collection..."
-              className="border rounded-md px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            <CollectionSearchBar
+              onSelect={(collection) => {
+                console.log("Selected or created collection:", collection)
+                // do something with the collection
+              }}
             />
           )}
           <Dialog open={open} onOpenChange={setOpen}>
