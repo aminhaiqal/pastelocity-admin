@@ -4,23 +4,18 @@ import { Product } from "@/services/products/types"
 
 type Props = {
   products: Product[]
-  selectedIds: number[]
-  onSelect: (id: number) => void
 }
 
-export default function ProductGrid({ products, selectedIds, onSelect }: Props) {
+export default function CollectionGrid({ products }: Props) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {products.map((product) => {
-        const isSelected = selectedIds.includes(product.id)
-
+        
         return (
           <div
             key={product.id}
-            onClick={() => onSelect(product.id)}
             className={`cursor-pointer bg-white border rounded-xl shadow-sm overflow-hidden transition-shadow duration-200
-              ${isSelected ? "border-indigo-500 shadow-md" : "border-gray-200 hover:shadow-md"}
-            `}
+              `}
           >
             {product.image_url ? (
               <div className="w-full h-48 overflow-hidden">
@@ -38,12 +33,9 @@ export default function ProductGrid({ products, selectedIds, onSelect }: Props) 
 
             <div className="p-4 flex flex-col gap-1">
               <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
-              {product.color && <p className="text-sm text-gray-500">Color: {product.color}</p>}
-              {product.length && <p className="text-sm text-gray-500">Length: {product.length}</p>}
-              <p className="text-sm text-gray-500">Quantity: {product.quantity}</p>
-              <p className="text-sm font-medium text-gray-700">Cutting Type: {product.cutting_type}</p>
-              <p className="text-sm font-medium text-gray-700">Price: RM{product.price.toFixed(2)}</p>
-
+              <p className="text-sm text-gray-500">Description: {product.quantity}</p>
+              <p className="text-sm font-medium text-gray-700">Stock Available: {product.cutting_type}</p>
+            
               {/* Optional: admin actions */}
               <div className="mt-3 flex gap-2">
                 <button className="text-sm text-indigo-600 hover:underline">Edit</button>

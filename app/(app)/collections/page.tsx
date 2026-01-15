@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog"
 import { IconPlus } from "@tabler/icons-react"
 import { useState } from "react"
-import { CollectionSearchBar } from "@/components/products/collection-search-bar"
+import { CollectionForm } from "@/components/collection/collection-form"
+import CollectionGrid from "@/components/collection/collection-grid"
 
-const dummyProducts: Product[] = [
+const dummyCollections: Product[] = [
   {
     id: 1,
     collection_id: "col_1",
@@ -39,7 +40,7 @@ const dummyProducts: Product[] = [
 ]
 
 export default function ProductsPage() {
-  const [products, setProducts] = React.useState<Product[]>(dummyProducts)
+  const [products, setProducts] = React.useState<Product[]>(dummyCollections)
   const [open, setOpen] = React.useState(false)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [isCollectionOpen, setIsCollectionOpen] = useState(false);
@@ -58,43 +59,30 @@ export default function ProductsPage() {
   return (
     <main className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Products</h1>
+        <h1 className="text-2xl font-bold">Collection</h1>
         <div className="flex items-center gap-3">
-          {selectedIds.length > 0 && (
-            <CollectionSearchBar
-              onSelect={(collection) => {
-                console.log("Selected or created collection:", collection)
-                // do something with the collection
-              }}
-            />
-          )}
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2">
                 <IconPlus size={16} />
-                New Product
+                New Collection
               </Button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-lg">
               <DialogHeader>
-                <DialogTitle>New Product</DialogTitle>
+                <DialogTitle>New Collection</DialogTitle>
               </DialogHeader>
 
-              <ProductForm onSubmit={handleAddProduct} />
+              <CollectionForm onSubmit={handleAddProduct} />
             </DialogContent>
           </Dialog>
         </div>
       </div>
 
-      <ProductGrid
+      <CollectionGrid
         products={products}
-        selectedIds={selectedIds}
-        onSelect={(id) =>
-          setSelectedIds((prev) =>
-            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-          )
-        }
+      
       />
     </main>
   )

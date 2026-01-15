@@ -157,9 +157,9 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
           name="image_url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Image URL</FormLabel>
+              <FormLabel>Product Images</FormLabel>
               <FormControl>
-                <Input placeholder="https://via.placeholder.com/150" {...field} />
+                 <Input id="picture" type="file" accept="image/*"/>
               </FormControl>
               <FormMessage />
             </FormItem>
