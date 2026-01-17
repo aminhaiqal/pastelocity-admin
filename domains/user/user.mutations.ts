@@ -1,3 +1,5 @@
+"use server"
+
 import { userApi } from "./user.api"
 import { mapUserDTO } from "./user.mapper"
 import { User, CreateUser, UpdateUser } from "./user.types"

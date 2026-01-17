@@ -1,3 +1,5 @@
+"use server"
+
 import { shippingApi } from "./shipping.api"
 import {
   CreateDeliveryOption,

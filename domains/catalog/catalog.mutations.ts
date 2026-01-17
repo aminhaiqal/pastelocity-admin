@@ -1,3 +1,5 @@
+"use server"
+
 import { catalogApi } from "./catalog.api"
 import { mapProductDTO, mapCollectionDTO } from "./catalog.mapper"
 import { Product, CreateProduct, UpdateProduct, Collection, CreateCollection, UpdateCollection } from "./catalog.types"

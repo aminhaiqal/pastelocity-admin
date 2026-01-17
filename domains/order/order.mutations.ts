@@ -1,3 +1,5 @@
+"use server"
+
 import { orderApi } from "./order.api"
 import { mapOrderDTO, mapOrderItemDTO } from "./order.mapper"
 import { Order, CreateOrder, UpdateOrder, OrderItem, CreateOrderItem, UpdateOrderItem } from "./order.types"
