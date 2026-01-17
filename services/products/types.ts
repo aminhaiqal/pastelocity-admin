@@ -15,8 +15,9 @@ export type Product = {
   description?: string
 }
 
-export type CreateProductInput = {
+export type ProductRequest = {
   name: string
+  description?: string
   color: string
   length?: number
   quantity: number
@@ -24,6 +25,6 @@ export type CreateProductInput = {
   image_url?: string
 }
 
-export type UpdateProductInput = Partial<CreateProductInput> & {
+export type UpdateProductInput = Partial<ProductRequest> & {
   id: ProductId
 }
