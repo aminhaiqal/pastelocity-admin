@@ -25,14 +25,8 @@ export const shippingApi = {
   getShipping: (id: number) =>
     api.get<Shipping>(`/shippings/${id}`),
 
-  getShippingsByDeliveryRate: (deliveryRateId: number) =>
-    api.get<Shipping[]>(`/shippings/delivery-rate/${deliveryRateId}`),
-
   getShippingsByDeliveryOption: (deliveryOptionId: number) =>
     api.get<Shipping[]>(`/shippings/delivery-option/${deliveryOptionId}`),
-
-  listShippingsByDeliveryRate: (deliveryRateId: number) =>
-    api.get<Shipping[]>(`/shippings/delivery-rate/${deliveryRateId}`),
 
   listShippingsByDeliveryOption: (deliveryOptionId: number) =>
     api.get<Shipping[]>(`/shippings/delivery-option/${deliveryOptionId}`),

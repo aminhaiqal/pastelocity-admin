@@ -32,11 +32,6 @@ export const shippingQueries = {
     return mapShippingDTO(data)
   },
 
-  async listShippingsByDeliveryRate(deliveryRateId: number): Promise<Shipping[]> {
-    const { data } = await shippingApi.getShippingsByDeliveryRate(deliveryRateId)
-    return data.map(mapShippingDTO)
-  },
-
   async listShippingsByDeliveryOption(deliveryOptionId: number): Promise<Shipping[]> {
     const { data } = await shippingApi.getShippingsByDeliveryOption(deliveryOptionId)
     return data.map(mapShippingDTO)

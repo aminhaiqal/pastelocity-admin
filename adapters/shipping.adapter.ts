@@ -9,7 +9,6 @@ export const ShippingAdapter = {
       zip: json.zip,
       city: json.city,
       stateName: json.stateName,
-      deliveryRateId: json.deliveryRateId,
       deliveryOptionId: json.deliveryOptionId,
       createdAt: new Date(json.createdAt).toISOString(),
     }

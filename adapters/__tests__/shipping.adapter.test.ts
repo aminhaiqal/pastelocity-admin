@@ -9,7 +9,6 @@ describe('ShippingAdapter', () => {
     zip: '90210',
     city: 'Los Angeles',
     stateName: 'California',
-    deliveryRateId: 10,
     deliveryOptionId: 20,
     createdAt: '2026-01-18T00:00:00Z',
   }
@@ -23,7 +22,6 @@ describe('ShippingAdapter', () => {
     expect(shipping.zip).toBe('90210')
     expect(shipping.city).toBe('Los Angeles')
     expect(shipping.stateName).toBe('California')
-    expect(shipping.deliveryRateId).toBe(10)
     expect(shipping.deliveryOptionId).toBe(20)
     expect(shipping.createdAt).toBe('2026-01-18T00:00:00.000Z')
   })
@@ -38,7 +36,6 @@ describe('ShippingAdapter', () => {
     expect(json.zip).toBe('90210')
     expect(json.city).toBe('Los Angeles')
     expect(json.stateName).toBe('California')
-    expect(json.deliveryRateId).toBe(10)
     expect(json.deliveryOptionId).toBe(20)
     expect(json.createdAt).toBe('2026-01-18T00:00:00.000Z')
   })

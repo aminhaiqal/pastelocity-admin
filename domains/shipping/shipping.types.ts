@@ -7,7 +7,6 @@ export interface Shipping {
   zip: string
   city: string
   stateName: string
-  deliveryRateId?: ID
   deliveryOptionId?: ID
   createdAt: string
 }
@@ -18,7 +17,6 @@ export interface CreateShipping {
   zip: string
   city: string
   stateName: string
-  deliveryRateId?: ID
   deliveryOptionId?: ID
 }
 
