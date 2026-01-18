@@ -1,6 +1,10 @@
-"use server"
-
-import { catalogMutations, catalogQueries } from "@/domains/catalog"
+import {
+  createProduct as dbCreateProduct,
+  updateProduct as dbUpdateProduct,
+  deleteProduct as dbDeleteProduct,
+  getProduct as dbGetProduct,
+  listProducts as dbListProducts,
+} from "@/domains/catalog"
 import { Product, CreateProduct, UpdateProduct } from "@/domains/catalog"
 
 const STRATEGY = process.env.PRODUCT_SEED_STRATEGY || "memory"
@@ -26,19 +30,19 @@ class ProductService {
       return newProduct
     }
     // DB
-    return catalogMutations.createProduct(input)
+    return dbCreateProduct(input)
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
     if (STRATEGY === "memory") {
       return this.inMemoryProducts.find(p => p.id === id)
     }
-    return catalogQueries.getProduct(id)
+    return dbGetProduct(id)
   }
 
   async listProducts(): Promise<Product[]> {
     if (STRATEGY === "memory") return this.inMemoryProducts
-    return catalogQueries.listProducts()
+    return dbListProducts()
   }
 
   async updateProduct(input: UpdateProduct): Promise<Product> {
@@ -53,7 +57,7 @@ class ProductService {
       this.inMemoryProducts[index] = updated
       return updated
     }
-    return catalogMutations.updateProduct(input)
+    return dbUpdateProduct(input)
   }
 
   async deleteProduct(id: number): Promise<Product | undefined> {
@@ -63,7 +67,7 @@ class ProductService {
       const [deleted] = this.inMemoryProducts.splice(index, 1)
       return deleted
     }
-    return catalogMutations.deleteProduct(id)
+    return dbDeleteProduct(id)
   }
 
   // -------------------
@@ -83,7 +87,7 @@ class ProductService {
     } else if (STRATEGY === "db") {
       const created: Product[] = []
       for (const p of products) {
-        const product = await catalogMutations.createProduct(p)
+        const product = await dbCreateProduct(p)
         created.push(product)
       }
       console.log(`[ProductService] Seeded ${products.length} products in DB`)

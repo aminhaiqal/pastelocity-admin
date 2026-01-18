@@ -1,3 +1,5 @@
+"use client"
+
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, SubmitHandler } from "react-hook-form"
 import { z } from "zod"
@@ -11,33 +13,37 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 
-// 1️⃣ Zod schema aligned with your fields
 const productSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
+  description: z.string().optional(),
   color: z.string().optional(),
   length: z.string().optional(),
   quantity: z.number().min(0, { message: "Quantity must be >= 0" }),
   price: z.number().min(0, { message: "Price must be >= 0" }),
   cutting_type: z.string().optional(),
-  image_url: z.string().url({ message: "Must be a valid URL" }).optional(),
+  image_url: z.string().refine((val) => !val || z.string().url().safeParse(val).success, {
+    message: "Must be a valid URL"
+  }).optional(),
 })
 
-// 2️⃣ Infer type from schema
 type ProductFormValues = z.infer<typeof productSchema>
 
 type ProductFormProps = {
   initialData?: Partial<ProductFormValues>
-  onSubmit: (values: ProductFormValues) => void
+  onSubmit: (values: ProductFormValues) => void | Promise<void>
+  isSubmitting?: boolean
 }
 
-// 3️⃣ Component
-export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
+
+export function ProductForm({ initialData, onSubmit, isSubmitting = false }: ProductFormProps) {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: initialData || {
       name: "",
+      description: "",
       color: "",
       length: "",
       quantity: 0,
@@ -47,8 +53,18 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
     },
   })
 
-  const handleSubmit: SubmitHandler<ProductFormValues> = (data) => {
-    onSubmit(data) // now type-safe
+
+  const handleSubmit: SubmitHandler<ProductFormValues> = async (data) => {    
+    if (isSubmitting) return
+
+    try {
+      await onSubmit(data)
+      toast.success("Product saved")
+      form.reset()
+    } catch (error: any) {
+      console.error("Submit error:", error)
+      toast.error(error?.message || "Failed to save product")
+    }
   }
 
   return (
@@ -65,6 +81,23 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input placeholder="Red Cotton Fabric" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Soft cotton fabric suitable for shirts"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -108,9 +141,10 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
               <FormControl>
                 <Input
                   type="number"
+                  placeholder="0"
                   {...field}
-                  value={field.value ?? ""}
-                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  value={field.value || ""}
                 />
               </FormControl>
               <FormMessage />
@@ -127,10 +161,11 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
               <FormControl>
                 <Input
                   type="number"
-                  step={0.01}
+                  step="0.01"
+                  placeholder="0.00"
                   {...field}
-                  value={field.value ?? ""}
-                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  value={field.value || ""}
                 />
               </FormControl>
               <FormMessage />
@@ -152,7 +187,7 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
           )}
         />
 
-        <FormField
+        {/*<FormField
           control={form.control}
           name="image_url"
           render={({ field }) => (
@@ -164,9 +199,11 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
               <FormMessage />
             </FormItem>
           )}
-        />
+        />*/}
 
-        <Button type="submit">Save Product</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Saving..." : "Save Product"}
+        </Button>
       </form>
     </Form>
   )
