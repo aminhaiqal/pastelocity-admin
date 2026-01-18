@@ -9,7 +9,7 @@ export interface Product {
   collectionId?: CollectionId
   name: string
   color?: string
-  length?: string
+  length?: number
   quantity: number
   price: number
   cuttingType?: string
@@ -23,7 +23,7 @@ export interface CreateProduct {
   name: string
   description?: string
   color?: string
-  length?: string
+  length?: number
   quantity: number
   price: number
   imageUrl?: string

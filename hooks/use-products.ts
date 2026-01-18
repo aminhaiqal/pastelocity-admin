@@ -1,10 +1,12 @@
 "use client"
 
 import { useEffect, useState, useTransition } from "react"
-import { Product, CreateProduct } from "@/domains/catalog"
+import { Product, CreateProduct, UpdateProduct } from "@/domains/catalog"
 import {
   listProductsAction,
   createProductAction,
+  updateProductAction,
+  deleteProductAction,
 } from "@/actions/products"
 
 export function useProducts() {
@@ -13,9 +15,13 @@ export function useProducts() {
 
   // Load products on mount
   useEffect(() => {
-    listProductsAction().then(setProducts)
+    startTransition(async () => {
+      const data = await listProductsAction()
+      setProducts(data)
+    })
   }, [])
 
+  // Create product
   function createProduct(input: CreateProduct) {
     startTransition(async () => {
       const created = await createProductAction(input)
@@ -23,9 +29,29 @@ export function useProducts() {
     })
   }
 
+  // Update product
+  function updateProduct(id: number, input: Omit<UpdateProduct, "id">) {
+    startTransition(async () => {
+      const updated = await updateProductAction({ id, ...input })
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? updated : p))
+      )
+    })
+  }
+
+  // Delete product
+  function deleteProduct(id: number) {
+    startTransition(async () => {
+      await deleteProductAction(id)
+      setProducts((prev) => prev.filter((p) => p.id !== id))
+    })
+  }
+
   return {
     products,
-    createProduct,
     isPending,
+    createProduct,
+    updateProduct,
+    deleteProduct,
   }
 }

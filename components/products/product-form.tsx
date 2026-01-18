@@ -86,6 +86,7 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
   }
 
   const quantityOptions = [1, 5, 10, 50, "Other"] as const
+  const priceOptions = [50, "Custom"] as const
 
   return (
     <Form {...form}>
@@ -257,3 +258,5 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
     </Form>
   )
 }
+
+export type { ProductFormValues }
