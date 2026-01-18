@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar"
 import Image from "next/image"
 
-const data = {
+export const data = {
   user: {
     name: "shadcn",
     email: "m@example.com",
@@ -60,7 +60,7 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
+      <SidebarHeader {...props}>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
