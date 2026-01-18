@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, SubmitHandler } from "react-hook-form"
 import { z } from "zod"
-
+import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -115,7 +115,7 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Input placeholder="Soft cotton fabric suitable for shirts" {...field} />
+                <Textarea placeholder="Soft cotton fabric suitable for shirts" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
