@@ -1,18 +1,17 @@
 import {
   DeliveryOption,
-  DeliveryRate,
   CreateDeliveryOption,
-  CreateDeliveryRate,
   Shipping,
   CreateShipping,
   UpdateShipping,
 } from "./shipping.types"
 
 // -----------------------------
-// Delivery Option / Rate
+// Delivery Option
 // -----------------------------
 export const mapDeliveryOptionDTO = (dto: any): DeliveryOption => ({
   id: dto.id,
+  country: dto.country,
   region: dto.region,
   shippingFee: dto.shipping_fee,
   estimate: dto.estimate ?? undefined,
@@ -20,27 +19,15 @@ export const mapDeliveryOptionDTO = (dto: any): DeliveryOption => ({
   freeShippingMinPurchase: dto.free_shipping_min_purchase ?? undefined,
 })
 
-export const mapDeliveryRateDTO = (dto: any): DeliveryRate => ({
-  id: dto.id,
-  country: dto.country,
-  deliveryOptionId: dto.delivery_option_id ?? undefined,
-})
-
 export const mapCreateDeliveryOptionPayload = (
   input: CreateDeliveryOption
 ) => ({
+  country: input.country,
   region: input.region,
   shipping_fee: input.shippingFee,
   estimate: input.estimate,
   exclusion: input.exclusion,
   free_shipping_min_purchase: input.freeShippingMinPurchase,
-})
-
-export const mapCreateDeliveryRatePayload = (
-  input: CreateDeliveryRate
-) => ({
-  country: input.country,
-  delivery_option_id: input.deliveryOptionId,
 })
 
 // -----------------------------
@@ -53,7 +40,6 @@ export const mapShippingDTO = (dto: any): Shipping => ({
   zip: dto.zip,
   city: dto.city,
   stateName: dto.state_name,
-  deliveryRateId: dto.delivery_rate_id ?? undefined,
   deliveryOptionId: dto.delivery_option_id ?? undefined,
   createdAt: dto.created_at,
 })
@@ -64,8 +50,7 @@ export const mapCreateShippingPayload = (input: CreateShipping) => ({
   zip: input.zip,
   city: input.city,
   stateName: input.stateName,
-  deliveryRateId: input.deliveryRateId,
-  deliveryOptionId: input.deliveryOptionId,
+  delivery_option_id: input.deliveryOptionId,
 })
 
 export const mapUpdateShippingPayload = (input: UpdateShipping) => ({
@@ -74,6 +59,5 @@ export const mapUpdateShippingPayload = (input: UpdateShipping) => ({
   zip: input.zip,
   city: input.city,
   stateName: input.stateName,
-  deliveryRateId: input.deliveryRateId,
-  deliveryOptionId: input.deliveryOptionId,
+  delivery_option_id: input.deliveryOptionId,
 })

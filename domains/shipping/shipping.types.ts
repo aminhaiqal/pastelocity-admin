@@ -24,6 +24,7 @@ export interface CreateShipping {
 
 export interface DeliveryOption {
   id: ID
+  country: string
   region: string
   shippingFee: string
   estimate?: string
@@ -31,13 +32,8 @@ export interface DeliveryOption {
   freeShippingMinPurchase?: string
 }
 
-export interface DeliveryRate {
-  id: ID
-  country: string
-  deliveryOptionId?: ID
-}
-
 export interface CreateDeliveryOption {
+  country: string
   region: string
   shippingFee: string
   estimate?: string
@@ -48,10 +44,3 @@ export interface CreateDeliveryOption {
 export interface UpdateShipping extends CreateShipping {}
 
 export interface UpdateDeliveryOption extends CreateDeliveryOption {}
-
-export interface CreateDeliveryRate {
-  country: string
-  deliveryOptionId?: ID
-}
-
-export interface UpdateDeliveryRate extends CreateDeliveryRate {}

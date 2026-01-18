@@ -4,6 +4,7 @@ export const DeliveryOptionAdapter = {
   fromJson(json: any): DeliveryOption {
     return {
       id: json.id,
+      country: json.country,
       region: json.region,
       shippingFee: json.shippingFee,
       estimate: json.estimate,

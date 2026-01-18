@@ -3,18 +3,14 @@
 import { shippingApi } from "./shipping.api"
 import {
   CreateDeliveryOption,
-  CreateDeliveryRate,
   DeliveryOption,
-  DeliveryRate,
   CreateShipping,
   UpdateShipping,
   Shipping,
 } from "./shipping.types"
 import {
   mapDeliveryOptionDTO,
-  mapDeliveryRateDTO,
   mapCreateDeliveryOptionPayload,
-  mapCreateDeliveryRatePayload,
   mapShippingDTO,
   mapCreateShippingPayload,
   mapUpdateShippingPayload,
@@ -31,15 +27,6 @@ export const shippingMutations = {
       mapCreateDeliveryOptionPayload(input)
     )
     return mapDeliveryOptionDTO(data)
-  },
-
-  async createDeliveryRate(
-    input: CreateDeliveryRate
-  ): Promise<DeliveryRate> {
-    const { data } = await shippingApi.createDeliveryRate(
-      mapCreateDeliveryRatePayload(input)
-    )
-    return mapDeliveryRateDTO(data)
   },
 
   // -----------------------------

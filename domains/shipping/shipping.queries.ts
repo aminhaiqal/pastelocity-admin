@@ -1,10 +1,9 @@
 import { shippingApi } from "./shipping.api"
 import {
   mapDeliveryOptionDTO,
-  mapDeliveryRateDTO,
   mapShippingDTO,
 } from "./shipping.mapper"
-import { DeliveryOption, DeliveryRate, Shipping } from "./shipping.types"
+import { DeliveryOption, Shipping } from "./shipping.types"
 
 export const shippingQueries = {
   // -----------------------------
@@ -18,19 +17,6 @@ export const shippingQueries = {
   async getDeliveryOption(id: number): Promise<DeliveryOption> {
     const { data } = await shippingApi.getDeliveryOption(id)
     return mapDeliveryOptionDTO(data)
-  },
-
-  // -----------------------------
-  // Delivery Rates
-  // -----------------------------
-  async listRatesByDeliveryOption(id: number): Promise<DeliveryRate[]> {
-    const { data } = await shippingApi.listRatesByDeliveryOption(id)
-    return data.map(mapDeliveryRateDTO)
-  },
-
-  async getDeliveryRate(id: number): Promise<DeliveryRate> {
-    const { data } = await shippingApi.getDeliveryRate(id)
-    return mapDeliveryRateDTO(data)
   },
 
   // -----------------------------

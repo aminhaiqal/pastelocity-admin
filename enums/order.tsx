@@ -1,9 +1,0 @@
-export enum Status {
-  EDITOR = "WAITING FOR PAYMENT",
-  PREPARING = "PREPARING",
-  SHIPPING = "SHIPING",
-  DONE = "DONE",
-
-  CANCEL = "CANCEL",
-  RETURN = "RETURN",
-}

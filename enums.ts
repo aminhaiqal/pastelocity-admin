@@ -1,3 +1,20 @@
+export enum CuttingType {
+  LONG_SLEEVE = "Long Sleeve",
+  CUTTING_SLIM = "Cutting Slim",
+  KAFTAN = "Kaftan",
+  BLOUSE = "Blouse",
+}
+
+export enum Status {
+  EDITOR = "WAITING FOR PAYMENT",
+  PREPARING = "PREPARING",
+  SHIPPING = "SHIPING",
+  DONE = "DONE",
+
+  CANCEL = "CANCEL",
+  RETURN = "RETURN",
+}
+
 export enum State {
   JOHOR = "Johor",
   KEDAH = "Kedah",

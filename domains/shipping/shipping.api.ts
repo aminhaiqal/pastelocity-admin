@@ -17,17 +17,6 @@ export const shippingApi = {
   deleteDeliveryOption: (id: number) => api.delete(`/delivery-options/${id}`),
 
   // -----------------------------
-  // Delivery Rates
-  // -----------------------------
-  getDeliveryRate: (id: number) => api.get(`/delivery-rates/${id}`),
-  listRatesByDeliveryOption: (id: number) =>
-    api.get(`/delivery-rates/delivery-option/${id}`),
-  createDeliveryRate: (payload: unknown) => api.post("/delivery-rates", payload),
-  updateDeliveryRate: (id: number, payload: unknown) =>
-    api.put(`/delivery-rates/${id}`, payload),
-  deleteDeliveryRate: (id: number) => api.delete(`/delivery-rates/${id}`),
-
-  // -----------------------------
   // Shipping
   // -----------------------------
   listShippingsByUser: (userId: number) =>
