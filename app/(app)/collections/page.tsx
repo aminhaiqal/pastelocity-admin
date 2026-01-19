@@ -1,88 +1,112 @@
 "use client"
 
-import * as React from "react"
-import { Product } from "@/services/products/types"
-import ProductGrid from "@/components/products/product-grid"
-import { ProductForm } from "@/components/products/product-form"
+import CollectionGrid from "@/components/collection/collection-grid"
+import { CollectionForm, CollectionFormValues } from "@/components/collection/collection-form"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { IconPlus } from "@tabler/icons-react"
 import { useState } from "react"
-import { CollectionForm } from "@/components/collection/collection-form"
-import CollectionGrid from "@/components/collection/collection-grid"
+import { toast } from "sonner"
+import { useCollections } from "@/hooks/use-collections"
+import { Collection } from "@/domains/catalog"
 
-const dummyCollections: Product[] = [
-  {
-    id: 1,
-    collection_id: "col_1",
-    name: "Red Cotton Fabric",
-    color: "Red",
-    length: "54",
-    quantity: 50,
-    price: 25.5,
-    cutting_type: "Manual",
-    image_url: "https://via.placeholder.com/150",
-    createdAt: "2024-01-01",
-    updatedAt: "2024-01-05",
-  },
-  {
-    id: 2,
-    name: "Blue Silk Fabric",
-    color: "Blue",
-    length: "54",
-    quantity: 20,
-    price: 50.0,
-    cutting_type: "Machine",
-    image_url: "https://via.placeholder.com/150",
-    createdAt: "2024-01-03",
-    updatedAt: "2024-01-03",
-  },
-]
+export default function CollectionsPage() {
+  const {
+    collections,
+    isPending,
+    createCollection,
+    updateCollection,
+    deleteCollection,
+  } = useCollections()
 
-export default function ProductsPage() {
-  const [products, setProducts] = React.useState<Product[]>(dummyCollections)
-  const [open, setOpen] = React.useState(false)
-  const [selectedIds, setSelectedIds] = useState<number[]>([])
-  const [isCollectionOpen, setIsCollectionOpen] = useState(false);
-  // handler when form is submitted
-  const handleAddProduct = (values: Omit<Product, "id" | "createdAt" | "updatedAt">) => {
-    const newProduct: Product = {
-      ...values,
-      id: 14,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+  const [open, setOpen] = useState(false)
+  const [editingCollection, setEditingCollection] = useState<Collection | null>(null)
+
+  // Handle create or edit submit
+  const handleAddOrEditCollection = async (values: CollectionFormValues) => {
+    try {
+      const payload = {
+        ...values,
+        isAvailable: values.isAvailable ?? true, // ensure boolean
+      }
+
+      if (editingCollection?.id) {
+        await updateCollection(editingCollection.id, payload)
+        toast.success("Collection updated")
+      } else {
+        await createCollection(payload)
+        toast.success("Collection added")
+      }
+
+      setEditingCollection(null)
+      setOpen(false)
+    } catch (err: any) {
+      console.error(err)
+      toast.error(err?.message || "Failed to save collection")
     }
-    setProducts((prev) => [...prev, newProduct])
-    setOpen(false) // close modal
+  }
+
+  // Edit button clicked
+  const handleEdit = (id: number) => {
+    const collection = collections.find((c) => c.id === id)
+    if (!collection) return
+    setEditingCollection(collection)
+    setOpen(true)
+  }
+
+  // Delete button clicked
+  const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this collection?")) return
+    try {
+      await deleteCollection(id)
+      toast.success("Collection deleted")
+    } catch (err: any) {
+      console.error(err)
+      toast.error(err?.message || "Failed to delete collection")
+    }
   }
 
   return (
     <main className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Collection</h1>
-        <div className="flex items-center gap-3">
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <IconPlus size={16} />
-                New Collection
-              </Button>
-            </DialogTrigger>
+        <h1 className="text-2xl font-bold">Collections</h1>
 
-            <DialogContent className="sm:max-w-lg">
-              <DialogHeader>
-                <DialogTitle>New Collection</DialogTitle>
-              </DialogHeader>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="flex items-center gap-2">
+              <IconPlus size={16} />
+              {editingCollection ? "Edit Collection" : "New Collection"}
+            </Button>
+          </DialogTrigger>
 
-              <CollectionForm onSubmit={handleAddProduct} />
-            </DialogContent>
-          </Dialog>
-        </div>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>
+                {editingCollection ? "Edit Collection" : "New Collection"}
+              </DialogTitle>
+            </DialogHeader>
+
+            <CollectionForm
+              initialData={editingCollection || undefined}
+              onSubmit={handleAddOrEditCollection}
+              isSubmitting={isPending}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
 
+      {/* Collection Grid */}
       <CollectionGrid
-        products={products}
-      
+        collection={collections}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
     </main>
   )

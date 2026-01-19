@@ -12,51 +12,45 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 
-// 1️⃣ Zod schema aligned with your fields
-const productSchema = z.object({
+const collectionSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
-  color: z.string().optional(),
-  length: z.string().optional(),
-  quantity: z.number().min(0, { message: "Quantity must be >= 0" }),
-  price: z.number().min(0, { message: "Price must be >= 0" }),
-  cutting_type: z.string().optional(),
-  image_url: z.string().url({ message: "Must be a valid URL" }).optional(),
+  description: z.string().optional(),
+  image: z
+    .any() // will handle file upload separately
+    .optional(),
+  isAvailable: z.boolean().optional(),
 })
 
-// 2️⃣ Infer type from schema
-type ProductFormValues = z.infer<typeof productSchema>
+export type CollectionFormValues = z.infer<typeof collectionSchema>
 
-type ProductFormProps = {
-  initialData?: Partial<ProductFormValues>
-  onSubmit: (values: ProductFormValues) => void
+type CollectionFormProps = {
+  initialData?: Partial<CollectionFormValues>
+  onSubmit: (values: CollectionFormValues) => void
+  isSubmitting?: boolean
 }
 
-// 3️⃣ Component
-export function CollectionForm({ initialData, onSubmit }: ProductFormProps) {
-  const form = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
-    defaultValues: initialData || {
+export function CollectionForm({ initialData, onSubmit, isSubmitting }: CollectionFormProps) {
+  const form = useForm<CollectionFormValues>({
+    resolver: zodResolver(collectionSchema),
+    defaultValues: {
       name: "",
-      color: "",
-      length: "",
-      quantity: 0,
-      price: 0,
-      cutting_type: "",
-      image_url: "",
+      description: "",
+      image: undefined,
+      isAvailable: true,
+      ...initialData,
     },
   })
 
-  const handleSubmit: SubmitHandler<ProductFormValues> = (data) => {
-    onSubmit(data) // now type-safe
+  const handleSubmit: SubmitHandler<CollectionFormValues> = (data) => {
+    onSubmit(data)
   }
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-4"
-      >
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        {/* Name */}
         <FormField
           control={form.control}
           name="name"
@@ -64,29 +58,69 @@ export function CollectionForm({ initialData, onSubmit }: ProductFormProps) {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Red Cotton Fabric" {...field} />
+                <Input placeholder="Summer Collection" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-
+        {/* Description */}
         <FormField
           control={form.control}
-          name="image_url"
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input placeholder="A short description" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Image */}
+        <FormField
+          control={form.control}
+          name="image"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Collection Image</FormLabel>
               <FormControl>
-                 <Input id="picture" type="file" accept="image/*"/>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    field.onChange(e.target.files?.[0])
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit">Save Product</Button>
+        {/* Availability */}
+        <FormField
+          control={form.control}
+          name="isAvailable"
+          render={({ field }) => (
+            <FormItem className="flex items-center space-x-2">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(checked)}
+                />
+              </FormControl>
+              <FormLabel>Available</FormLabel>
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Saving..." : "Save Collection"}
+        </Button>
       </form>
     </Form>
   )

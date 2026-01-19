@@ -1,6 +1,10 @@
-"use server"
-
-import { catalogMutations, catalogQueries } from "@/domains/catalog"
+import {
+  createCollection as dbCreateCollection,
+  updateCollection as dbUpdateCollection,
+  deleteCollection as dbDeleteCollection,
+  getCollection as dbGetCollection,
+  listCollections as dbListCollections,
+} from "@/domains/catalog"
 import { Collection, CollectionList, CreateCollection, UpdateCollection } from "@/domains/catalog"
 
 const STRATEGY = process.env.PRODUCT_SEED_STRATEGY || "memory"
@@ -30,23 +34,23 @@ class CollectionService {
       this.inMemoryCollections.push(newCollection)
       return newCollection
     }
-    return catalogMutations.createCollection(input)
+    return dbCreateCollection(input)
   }
 
   async getCollection(id: number): Promise<Collection | undefined> {
     if (STRATEGY === "memory") {
       return this.inMemoryCollections.find(c => c.id === id)
     }
-    return catalogQueries.getCollection(id)
+    return dbGetCollection(id)
   }
 
   async listCollections(): Promise<Collection[]> {
     if (STRATEGY === "memory") return this.inMemoryCollections
     // Fetch all collections with products
-    const lists: CollectionList[] = await catalogQueries.listCollections()
+    const lists: CollectionList[] = await dbListCollections()
     const fullCollections: Collection[] = []
     for (const c of lists) {
-      const col = await catalogQueries.getCollection(c.id)
+      const col = await dbGetCollection(c.id)
       fullCollections.push(col)
     }
     return fullCollections
@@ -64,7 +68,7 @@ class CollectionService {
       this.inMemoryCollections[index] = updated
       return updated
     }
-    return catalogMutations.updateCollection(input)
+    return dbUpdateCollection(input)
   }
 
   async deleteCollection(id: number): Promise<Collection | undefined> {
@@ -74,7 +78,7 @@ class CollectionService {
       const [deleted] = this.inMemoryCollections.splice(index, 1)
       return deleted
     }
-    return catalogMutations.deleteCollection(id)
+    return dbDeleteCollection(id)
   }
 
   // -------------------
@@ -99,7 +103,7 @@ class CollectionService {
     } else if (STRATEGY === "db") {
       const created: Collection[] = []
       for (const c of collections) {
-        const collection = await catalogMutations.createCollection(c)
+        const collection = await dbCreateCollection(c)
         created.push(collection)
       }
       console.log(`[CollectionService] Seeded ${collections.length} collections in DB`)

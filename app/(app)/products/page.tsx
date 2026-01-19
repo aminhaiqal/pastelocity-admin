@@ -27,7 +27,6 @@ export default function ProductsPage() {
   const handleAddOrEditProduct = async (values: ProductFormValues) => {
     try {
       if (editingProduct) {
-        // Use Omit<UpdateProduct, "id"> to avoid duplicate id warning
         await updateProduct(editingProduct.id, values)
         toast.success("Product updated")
         setEditingProduct(null)

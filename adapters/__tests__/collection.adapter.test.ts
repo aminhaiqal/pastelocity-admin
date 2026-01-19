@@ -1,5 +1,4 @@
 import { CollectionAdapter } from '../collection.adapter'
-import { ProductAdapter } from '../product.adapter'
 import { Collection } from '@/domains/catalog'
 
 describe('CollectionAdapter', () => {
