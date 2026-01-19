@@ -38,7 +38,7 @@ export function CollectionForm({ initialData, onSubmit, isSubmitting }: Collecti
       name: "",
       description: "",
       image: undefined,
-      isAvailable: true,
+      isAvailable: false,
       ...initialData,
     },
   })

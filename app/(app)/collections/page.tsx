@@ -1,7 +1,7 @@
 "use client"
 
-import CollectionGrid from "@/components/collection/collection-grid"
-import { CollectionForm, CollectionFormValues } from "@/components/collection/collection-form"
+import CollectionGrid from "@/components/collections/collection-grid"
+import { CollectionForm, CollectionFormValues } from "@/components/collections/collection-form"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -33,7 +33,7 @@ export default function CollectionsPage() {
     try {
       const payload = {
         ...values,
-        isAvailable: values.isAvailable ?? true, // ensure boolean
+        isAvailable: values.isAvailable ?? false,
       }
 
       if (editingCollection?.id) {
