@@ -19,7 +19,7 @@ export default function CollectionCard({ collection, onEdit, onDelete }: Props) 
       {collection.image ? (
         <div className="relative w-full h-48 overflow-hidden">
           <Image
-            src={`${collection.image}/carousel.png`}
+            src={`${collection.image}`}
             alt={collection.name}
             fill
             className="object-cover"
