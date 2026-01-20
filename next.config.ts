@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'storage.pastelocity.com.my',
+        port: '', // leave empty if default 443
+        pathname: '/**', // allow all paths
+      },
+    ],
+  },
 };
 
 export default nextConfig;

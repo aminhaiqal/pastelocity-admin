@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { Collection } from "@/domains/catalog"
 import { Button } from "@/components/ui/button"
 
@@ -16,11 +17,14 @@ export default function CollectionCard({ collection, onEdit, onDelete }: Props) 
         border-gray-200 hover:shadow-md"
     >
       {collection.image ? (
-        <div className="w-full h-48 overflow-hidden">
-          <img
-            src={collection.image}
+        <div className="relative w-full h-48 overflow-hidden">
+          <Image
+            src={`${collection.image}/carousel.png`}
             alt={collection.name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            placeholder="blur"
+            blurDataURL="/images/placeholder.png"
           />
         </div>
       ) : (

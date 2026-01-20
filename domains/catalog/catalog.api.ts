@@ -8,24 +8,24 @@ export const catalogApi = {
   // -----------------------------
   // Product endpoints
   // -----------------------------
-  listProducts: () => api.get<Product[]>("/products"),
-  getProduct: (id: number) => api.get<Product>(`/products/${id}`),
+  listProducts: () => api.get<Product[]>("/product"),
+  getProduct: (id: number) => api.get<Product>(`/product/${id}`),
   getProductsByCollection: (collectionId: number) =>
-    api.get<Product[]>(`/collections/${collectionId}/products`),
-  createProduct: (payload: CreateProduct) => api.post<Product>("/products", payload),
-  updateProduct: (id: number, payload: UpdateProduct) => api.put<Product>(`/products/${id}`, payload),
-  deleteProduct: (id: number) => api.delete<Product>(`/products/${id}`),
+    api.get<Product[]>(`/collection/${collectionId}/product`),
+  createProduct: (payload: CreateProduct) => api.post<Product>("/product", payload),
+  updateProduct: (id: number, payload: UpdateProduct) => api.put<Product>(`/product/${id}`, payload),
+  deleteProduct: (id: number) => api.delete<Product>(`/product/${id}`),
   addProductToCollection: (productId: number, collectionId: number) =>
-    api.put<Product>(`/products/${productId}/collection/${collectionId}`),
+    api.put<Product>(`/product/${productId}/collection/${collectionId}`),
   removeProductFromCollection: (productId: number) =>
-    api.delete<Product>(`/products/${productId}/collection`),
+    api.delete<Product>(`/product/${productId}/collection`),
 
   // -----------------------------
   // Collection endpoints
   // -----------------------------
-  listCollections: () => api.get<CollectionList[]>("/collections"),
-  getCollection: (id: number) => api.get<Collection>(`/collections/${id}`),
-  createCollection: (payload: CreateCollection) => api.post<Collection>("/collections", payload),
-  updateCollection: (id: number, payload: UpdateCollection) => api.put<Collection>(`/collections/${id}`, payload),
-  deleteCollection: (id: number) => api.delete<Collection>(`/collections/${id}`),
+  listCollections: () => api.get<CollectionList[]>("/collection"),
+  getCollection: (id: number) => api.get<Collection>(`/collection/${id}`),
+  createCollection: (payload: CreateCollection) => api.post<Collection>("/collection", payload),
+  updateCollection: (id: number, payload: UpdateCollection) => api.put<Collection>(`/collection/${id}`, payload),
+  deleteCollection: (id: number) => api.delete<Collection>(`/collection/${id}`),
 }
