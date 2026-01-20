@@ -42,7 +42,7 @@ export interface CollectionList {
   name: string
   slug: string
   image?: string
-  isAvailable: boolean
+  is_available: boolean
 }
 
 export interface Collection {
@@ -51,9 +51,9 @@ export interface Collection {
   slug: string
   description?: string
   image?: string
-  isAvailable: boolean
-  createdAt: string
-  updatedAt: string
+  is_available: boolean
+  created_at: string
+  updated_at: string
   products?: Product[]
 }
 
@@ -61,7 +61,7 @@ export interface CreateCollection {
   name: string
   description?: string
   image?: string
-  isAvailable: boolean
+  is_available: boolean
 }
 
 export interface UpdateCollection extends Partial<CreateCollection> {

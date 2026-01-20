@@ -13,7 +13,7 @@ describe('CollectionService (memory strategy)', () => {
       name: 'Summer Collection',
       description: 'A sunny collection',
       image: 'summer.png',
-      isAvailable: true,
+      is_available: true,
     }
 
     const collection = await collectionService.createCollection(input)
@@ -23,16 +23,16 @@ describe('CollectionService (memory strategy)', () => {
     expect(collection.slug).toBe('summer-collection')
     expect(collection.description).toBe('A sunny collection')
     expect(collection.image).toBe('summer.png')
-    expect(collection.isAvailable).toBe(true)
+    expect(collection.is_available).toBe(true)
     expect(collection.products).toEqual([])
-    expect(collection.createdAt).toBeDefined()
-    expect(collection.updatedAt).toBeDefined()
+    expect(collection.created_at).toBeDefined()
+    expect(collection.updated_at).toBeDefined()
   })
 
   it('should get a collection by id', async () => {
     const input: CreateCollection = {
       name: 'Fall Collection',
-      isAvailable: true,
+      is_available: true,
     }
     const created = await collectionService.createCollection(input)
 
@@ -41,8 +41,8 @@ describe('CollectionService (memory strategy)', () => {
   })
 
   it('should list all collections', async () => {
-    await collectionService.createCollection({ name: 'One', isAvailable: true })
-    await collectionService.createCollection({ name: 'Two', isAvailable: false })
+    await collectionService.createCollection({ name: 'One', is_available: true })
+    await collectionService.createCollection({ name: 'Two', is_available: false })
 
     const all = await collectionService.listCollections()
     expect(all).toHaveLength(2)
@@ -51,19 +51,19 @@ describe('CollectionService (memory strategy)', () => {
   })
 
   it('should update a collection', async () => {
-    const created = await collectionService.createCollection({ name: 'Old', isAvailable: true })
+    const created = await collectionService.createCollection({ name: 'Old', is_available: true })
 
-    const updateInput: UpdateCollection = { id: created.id, name: 'New', isAvailable: false }
+    const updateInput: UpdateCollection = { id: created.id, name: 'New', is_available: false }
     const updated = await collectionService.updateCollection(updateInput)
 
     expect(updated.id).toBe(created.id)
     expect(updated.name).toBe('New')
-    expect(updated.isAvailable).toBe(false)
-    expect(updated.updatedAt).toBeDefined()
+    expect(updated.is_available).toBe(false)
+    expect(updated.updated_at).toBeDefined()
   })
 
   it('should delete a collection', async () => {
-    const created = await collectionService.createCollection({ name: 'To Delete', isAvailable: true })
+    const created = await collectionService.createCollection({ name: 'To Delete', is_available: true })
 
     const deleted = await collectionService.deleteCollection(created.id)
     expect(deleted).toEqual(created)
@@ -74,8 +74,8 @@ describe('CollectionService (memory strategy)', () => {
 
   it('should seed multiple collections', async () => {
     const seedData: CreateCollection[] = [
-      { name: 'A', isAvailable: true },
-      { name: 'B', isAvailable: false },
+      { name: 'A', is_available: true },
+      { name: 'B', is_available: false },
     ]
 
     const seeded = await collectionService.seedCollections(seedData)

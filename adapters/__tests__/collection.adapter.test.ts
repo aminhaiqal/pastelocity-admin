@@ -30,7 +30,7 @@ describe('CollectionAdapter', () => {
     expect(collection.name).toBe('Summer Collection')
     expect(collection.products).toHaveLength(1)
     expect(collection.products![0].name).toBe('T-shirt')
-    expect(collection.createdAt).toBe('2026-01-18T00:00:00.000Z') // ISO normalized
+    expect(collection.created_at).toBe('2026-01-18T00:00:00.000Z') // ISO normalized
   })
 
   it('should convert Collection object back to JSON', () => {

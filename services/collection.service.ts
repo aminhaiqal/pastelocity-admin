@@ -22,13 +22,13 @@ class CollectionService {
     if (STRATEGY === "memory") {
       const newCollection: Collection = {
         id: this.inMemoryCollections.length + 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         name: input.name,
         slug: input.name.toLowerCase().replace(/\s+/g, "-"),
         description: input.description,
         image: input.image,
-        isAvailable: input.isAvailable,
+        is_available: input.is_available,
         products: [],
       }
       this.inMemoryCollections.push(newCollection)
@@ -63,7 +63,7 @@ class CollectionService {
       const updated: Collection = {
         ...this.inMemoryCollections[index],
         ...input,
-        updatedAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
       }
       this.inMemoryCollections[index] = updated
       return updated
@@ -89,13 +89,13 @@ class CollectionService {
     if (STRATEGY === "memory") {
       this.inMemoryCollections = collections.map((c, index) => ({
         id: this.inMemoryCollections.length + index + 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         name: c.name,
         slug: c.name.toLowerCase().replace(/\s+/g, "-"),
         description: c.description,
         image: c.image,
-        isAvailable: c.isAvailable,
+        is_available: c.is_available,
         products: [],
       }))
       console.log(`[CollectionService] Seeded ${collections.length} collections in memory`)

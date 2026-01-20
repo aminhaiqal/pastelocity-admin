@@ -21,9 +21,9 @@ export const mapCollectionDTO = (dto: any): Collection => ({
   slug: dto.slug,
   description: dto.description,
   image: dto.image,
-  isAvailable: dto.is_available,
-  createdAt: dto.created_at,
-  updatedAt: dto.updated_at,
+  is_available: dto.is_available,
+  created_at: dto.created_at,
+  updated_at: dto.updated_at,
   products: dto.products?.map(mapProductDTO),
 })
 
@@ -32,5 +32,5 @@ export const mapCollectionListDTO = (dto: any): CollectionList => ({
   name: dto.name,
   slug: dto.slug,
   image: dto.image,
-  isAvailable: dto.is_available,
+  is_available: dto.is_available,
 })

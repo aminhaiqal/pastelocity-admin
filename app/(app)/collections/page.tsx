@@ -33,7 +33,7 @@ export default function CollectionsPage() {
     try {
       const payload = {
         ...values,
-        isAvailable: values.isAvailable ?? false,
+        is_available: values.isAvailable ?? false,
       }
 
       if (editingCollection?.id) {
