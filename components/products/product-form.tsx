@@ -35,6 +35,10 @@ const productSchema = z.object({
   quantity: z.number().min(0, { message: "Quantity must be >= 0" }),
   price: z.number().min(0, { message: "Price must be >= 0" }),
   cutting_type: z.nativeEnum(CuttingType).optional(),
+  imageUrl: z
+    .string()
+    .optional()
+    .refine((val) => !val || val.trim() !== "", { message: "Image filename is required" }),
 })
 
 type ProductFormValues = z.infer<typeof productSchema>
@@ -55,7 +59,6 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
       length: 0,
       quantity: 0,
       price: 0,
-      cutting_type: undefined,
     },
   })
 
@@ -91,6 +94,27 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+
+        {/* Image URL */}
+        <FormField
+          control={form.control}
+          name="imageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Image Filename</FormLabel>
+              <FormControl>
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-500">https://storage.pastelocity.com.my/public/</span>
+                  <Input
+                    placeholder="my-image.jpg"
+                    {...field}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Name */}
         <FormField
@@ -176,7 +200,7 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
                   form.setValue("quantity", val as number)
                 }}
               >
-                {val === "Other" ? "Other" : `+${val}`}
+                {val === "Other" ? "Other" : `${val}`}
               </Button>
             ))}
           </div>

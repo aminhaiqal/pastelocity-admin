@@ -17,9 +17,10 @@ import { Checkbox } from "@/components/ui/checkbox"
 const collectionSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   description: z.string().optional(),
-  image: z
-    .any() // will handle file upload separately
-    .optional(),
+  imageUrl: z
+    .string()
+    .optional()
+    .refine((val) => !val || val.trim() !== "", { message: "Image filename is required" }),
   isAvailable: z.boolean().optional(),
 })
 
@@ -37,13 +38,17 @@ export function CollectionForm({ initialData, onSubmit, isSubmitting }: Collecti
     defaultValues: {
       name: "",
       description: "",
-      image: undefined,
+      imageUrl: "",
       isAvailable: false,
       ...initialData,
     },
   })
 
   const handleSubmit: SubmitHandler<CollectionFormValues> = (data) => {
+    // Prepend the public bucket URL if filename exists
+    if (data.imageUrl) {
+      data.imageUrl = `https://storage.pastelocity.com.my/public/${data.imageUrl}`
+    }
     onSubmit(data)
   }
 
@@ -80,21 +85,18 @@ export function CollectionForm({ initialData, onSubmit, isSubmitting }: Collecti
           )}
         />
 
-        {/* Image */}
+        {/* Image Filename */}
         <FormField
           control={form.control}
-          name="image"
+          name="imageUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Collection Image</FormLabel>
+              <FormLabel>Collection Image Filename</FormLabel>
               <FormControl>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    field.onChange(e.target.files?.[0])
-                  }}
-                />
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-500">https://storage.pastelocity.com.my/public/</span>
+                  <Input placeholder="my-image.jpg" {...field} />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
