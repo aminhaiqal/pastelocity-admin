@@ -34,9 +34,7 @@ class ProductService {
       return newProduct
     }
     // DB
-    const product = await dbCreateProduct(input)
-    await handleProductCollection(product, undefined, input.collection_id)
-    return product
+    return dbCreateProduct(input)
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
@@ -75,10 +73,7 @@ class ProductService {
     }
 
     // DB path
-    const oldProduct = await dbGetProduct(input.id)
-    const product = await dbUpdateProduct(input)
-    await handleProductCollection(product, oldProduct.collection_id, input.collection_id)
-    return product
+    return dbUpdateProduct(input)
   }
 
   async deleteProduct(id: number): Promise<Product | undefined> {

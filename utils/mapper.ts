@@ -11,5 +11,6 @@ export function productToFormValues(product: Product) {
     price: Number(product.price),
     image_url: product.image_url ?? "",
     cutting_type: product.cutting_type as cutting_type,
+    collection_id: product.collection_id,
   }
 }
