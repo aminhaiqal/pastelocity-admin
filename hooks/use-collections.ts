@@ -17,12 +17,16 @@ export function useCollections() {
   const [collections, setCollections] = useState<Collection[]>([])
   const [isPending, startTransition] = useTransition()
 
-  // Load collections on mount
-  useEffect(() => {
+  function refreshCollections() {
     startTransition(async () => {
       const data = await listCollectionsAction()
       setCollections(data)
     })
+  }
+
+  // Load collections on mount
+  useEffect(() => {
+    refreshCollections()
   }, [])
 
   // Create collection
@@ -54,6 +58,7 @@ export function useCollections() {
   return {
     collections,
     isPending,
+    refreshCollections,
     createCollection,
     updateCollection,
     deleteCollection,

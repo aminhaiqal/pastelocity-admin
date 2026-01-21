@@ -17,9 +17,11 @@ import { useProducts } from "@/hooks/use-products"
 import { Product } from "@/domains/catalog"
 import { toast } from "sonner"
 import { productToFormValues } from "@/utils/mapper"
+import { useCollections } from "@/hooks/use-collections"
 
 export default function ProductsPage() {
   const { products, createProduct, updateProduct, deleteProduct, isPending } = useProducts()
+  const { collections, refreshCollections, isPending: collectionPending } = useCollections()
   const [open, setOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
@@ -40,6 +42,11 @@ export default function ProductsPage() {
       console.error(err)
       toast.error(err?.message || "Failed to save product")
     }
+  }
+
+  // Handle collection assignment
+  const handleCollectionAssignment = async () => {
+    
   }
 
   // Edit button clicked on card
@@ -96,6 +103,10 @@ export default function ProductsPage() {
                 initialData={editingProduct ? productToFormValues(editingProduct) : undefined}
                 onSubmit={handleAddOrEditProduct}
                 isSubmitting={isPending}
+
+                collections={collections}
+                isCollectionRefreshing={collectionPending}
+                onCollectionRefresh={refreshCollections}
               />
             </DialogContent>
           </Dialog>

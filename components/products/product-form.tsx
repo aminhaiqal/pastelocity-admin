@@ -18,6 +18,7 @@ import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import React from "react"
 import { cutting_type } from "@/enums"
+import { Collection } from "@/domains/catalog"
 
 // Validation schema
 const productSchema = z.object({
@@ -40,9 +41,13 @@ type ProductFormProps = {
   initialData?: Partial<ProductFormValues>
   onSubmit: (values: ProductFormValues) => void | Promise<void>
   isSubmitting?: boolean
+
+  collections: Collection[]
+  isCollectionRefreshing?: boolean
+  onCollectionRefresh: () => void
 }
 
-export function ProductForm({ initialData, onSubmit, isSubmitting = false }: ProductFormProps) {
+export function ProductForm({ initialData, onSubmit, isSubmitting = false, collections, isCollectionRefreshing = false, onCollectionRefresh }: ProductFormProps) {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: initialData || {
@@ -120,7 +125,7 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
           )}
         />
 
-        {/* Description */} 
+        {/* Description */}
         <FormField
           control={form.control}
           name="description"
@@ -208,60 +213,61 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
           <FormMessage>{form.formState.errors.quantity?.message}</FormMessage>
         </FormItem>
 
-        {/* Price */}
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Price</FormLabel>
-              <FormControl>
-                <Input
-                  type="text"
-                  placeholder="0.00"
-                  {...field}
-                  onChange={(e) => {
-                    // Remove non-digits
-                    const digitsOnly = e.target.value.replace(/\D/g, "")
-                    const value = digitsOnly ? parseFloat(digitsOnly) / 100 : 0
-                    field.onChange(value)
-                  }}
-                  onBlur={() => {
-                    field.onChange(parseFloat(field.value.toFixed(2)))
-                  }}
-                  value={Number(field.value)?.toFixed(2) || "0.00"}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="flex gap-4">
+          {/* Price */}
+          <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Price</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="0.00"
+                    {...field}
+                    onChange={(e) => {
+                      const digitsOnly = e.target.value.replace(/\D/g, "")
+                      const value = digitsOnly ? parseFloat(digitsOnly) / 100 : 0
+                      field.onChange(value)
+                    }}
+                    onBlur={() => {
+                      field.onChange(parseFloat(field.value.toFixed(2)))
+                    }}
+                    value={Number(field.value)?.toFixed(2) || "0.00"}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Cutting Type */}
-        <FormField
-          control={form.control}
-          name="cutting_type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Cutting Type</FormLabel>
-              <FormControl>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select cutting type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(cutting_type).map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          {/* Cutting Type */}
+          <FormField
+            control={form.control}
+            name="cutting_type"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Cutting Type</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select cutting type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(cutting_type).map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Saving..." : "Save Product"}
