@@ -4,15 +4,17 @@ import {
   deleteProduct as dbDeleteProduct,
   getProduct as dbGetProduct,
   listProducts as dbListProducts,
+  collection_id,
 } from "@/domains/catalog"
 import { Product, CreateProduct, UpdateProduct } from "@/domains/catalog"
+import { handleProductCollection } from "./helpers/product-collection.helper"
 
 const STRATEGY = process.env.PRODUCT_SEED_STRATEGY || "memory"
 
 class ProductService {
   private inMemoryProducts: Product[] = []
 
-  constructor() {}
+  constructor() { }
 
   // -------------------
   // CRUD Operations
@@ -25,12 +27,16 @@ class ProductService {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         ...input,
+        length: input.length !== undefined ? input.length.toString() : undefined,
+        price: input.price.toString(),
       }
       this.inMemoryProducts.push(newProduct)
       return newProduct
     }
     // DB
-    return dbCreateProduct(input)
+    const product = await dbCreateProduct(input)
+    await handleProductCollection(product, undefined, input.collection_id)
+    return product
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
@@ -45,19 +51,34 @@ class ProductService {
     return dbListProducts()
   }
 
-  async updateProduct(input: UpdateProduct): Promise<Product> {
+  async updateProduct(input: UpdateProduct & { collection_id?: collection_id }): Promise<Product> {
     if (STRATEGY === "memory") {
       const index = this.inMemoryProducts.findIndex(p => p.id === input.id)
       if (index === -1) throw new Error(`Product ${input.id} not found in memory`)
+
+      const oldProduct = this.inMemoryProducts[index]
+
       const updated: Product = {
-        ...this.inMemoryProducts[index],
+        ...oldProduct,
         ...input,
+        length: input.length?.toString(),
+        price: input.price?.toString() ?? oldProduct.price,
         updated_at: new Date().toISOString(),
       }
+
       this.inMemoryProducts[index] = updated
+
+      // Handle collection changes
+      await handleProductCollection(updated, oldProduct.collection_id, input.collection_id)
+
       return updated
     }
-    return dbUpdateProduct(input)
+
+    // DB path
+    const oldProduct = await dbGetProduct(input.id)
+    const product = await dbUpdateProduct(input)
+    await handleProductCollection(product, oldProduct.collection_id, input.collection_id)
+    return product
   }
 
   async deleteProduct(id: number): Promise<Product | undefined> {
@@ -81,6 +102,8 @@ class ProductService {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         ...p,
+        length: p.length !== undefined ? p.length.toString() : undefined,
+        price: p.price.toString(),
       }))
       console.log(`[ProductService] Seeded ${products.length} products in memory`)
       return this.inMemoryProducts

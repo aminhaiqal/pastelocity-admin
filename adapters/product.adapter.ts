@@ -7,6 +7,7 @@ export const ProductAdapter = {
       id: json.id,
       collection_id: json.collection_id,
       name: json.name,
+      description: json.description,
       color: json.color,
       length: json.length,
       quantity: json.quantity,

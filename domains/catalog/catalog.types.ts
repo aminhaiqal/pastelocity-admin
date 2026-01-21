@@ -28,6 +28,7 @@ export interface CreateProduct {
   price: number
   cutting_type: string
   image_url?: string
+  collection_id?: collection_id
 }
 
 export interface UpdateProduct extends Partial<CreateProduct> {

@@ -20,6 +20,16 @@ export async function deleteProduct(id: number): Promise<Product> {
   return mapProductDTO(data)
 }
 
+export async function addProductIntoCollection(product_id: number, collection_id: number): Promise<Product> {
+  const { data } = await catalogApi.addProductToCollection(product_id, collection_id)
+  return mapProductDTO(data)
+}
+
+export async function removeProductFromCollection(product_id: number): Promise<Product> {
+  const { data } = await catalogApi.removeProductFromCollection(product_id)
+  return mapProductDTO(data)
+}
+
 // COLLECTIONS
 export async function createCollection(input: CreateCollection): Promise<Collection> {
   const { data } = await catalogApi.createCollection(input)

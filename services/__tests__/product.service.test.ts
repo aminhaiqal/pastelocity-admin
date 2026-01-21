@@ -14,6 +14,7 @@ describe('ProductService (memory strategy)', () => {
       price: 100,
       description: 'Test product',
       color: 'Red',
+      cutting_type: 'Standard', // added
     }
 
     const product = await productService.createProduct(input)
@@ -21,9 +22,10 @@ describe('ProductService (memory strategy)', () => {
     expect(product.id).toBe(1)
     expect(product.name).toBe('Product A')
     expect(product.quantity).toBe(10)
-    expect(product.price).toBe(100)
+    expect(product.price).toBe('100') // note: memory strategy converts to string
     expect(product.description).toBe('Test product')
     expect(product.color).toBe('Red')
+    expect(product.cutting_type).toBe('Standard')
     expect(product.created_at).toBeDefined()
     expect(product.updated_at).toBeDefined()
   })
@@ -33,6 +35,8 @@ describe('ProductService (memory strategy)', () => {
       name: 'Product B',
       quantity: 5,
       price: 50,
+      description: 'Test B', // added
+      cutting_type: 'Standard', // added
     })
 
     const fetched = await productService.getProduct(created.id)
@@ -40,8 +44,20 @@ describe('ProductService (memory strategy)', () => {
   })
 
   it('should list all products', async () => {
-    await productService.createProduct({ name: 'P1', quantity: 1, price: 10 })
-    await productService.createProduct({ name: 'P2', quantity: 2, price: 20 })
+    await productService.createProduct({
+      name: 'P1',
+      quantity: 1,
+      price: 10,
+      description: 'Desc P1', // added
+      cutting_type: 'Standard', // added
+    })
+    await productService.createProduct({
+      name: 'P2',
+      quantity: 2,
+      price: 20,
+      description: 'Desc P2', // added
+      cutting_type: 'Standard', // added
+    })
 
     const all = await productService.listProducts()
     expect(all).toHaveLength(2)
@@ -54,20 +70,26 @@ describe('ProductService (memory strategy)', () => {
       name: 'Old Name',
       quantity: 1,
       price: 10,
+      description: 'Old description', // added
+      cutting_type: 'Standard', // added
     })
 
     const updateInput: UpdateProduct = {
       id: created.id,
       name: 'New Name',
       price: 15,
+      description: 'New description', // added
+      cutting_type: 'Custom', // added
     }
 
     const updated = await productService.updateProduct(updateInput)
 
     expect(updated.id).toBe(created.id)
     expect(updated.name).toBe('New Name')
-    expect(updated.price).toBe(15)
+    expect(updated.price).toBe('15') // memory converts to string
     expect(updated.quantity).toBe(1) // unchanged
+    expect(updated.description).toBe('New description')
+    expect(updated.cutting_type).toBe('Custom')
   })
 
   it('should throw when updating non-existent product', async () => {
@@ -81,6 +103,8 @@ describe('ProductService (memory strategy)', () => {
       name: 'To Delete',
       quantity: 1,
       price: 10,
+      description: 'Delete me', // added
+      cutting_type: 'Standard', // added
     })
 
     const deleted = await productService.deleteProduct(created.id)
@@ -96,8 +120,8 @@ describe('ProductService (memory strategy)', () => {
 
   it('should seed multiple products', async () => {
     const seedData: CreateProduct[] = [
-      { name: 'Seed 1', quantity: 1, price: 10 },
-      { name: 'Seed 2', quantity: 2, price: 20 },
+      { name: 'Seed 1', quantity: 1, price: 10, description: 'Seed Desc 1', cutting_type: 'Standard' },
+      { name: 'Seed 2', quantity: 2, price: 20, description: 'Seed Desc 2', cutting_type: 'Standard' },
     ]
 
     const seeded = await productService.seedProducts(seedData)

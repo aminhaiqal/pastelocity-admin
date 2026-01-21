@@ -1,62 +1,59 @@
-import { collectionService } from '@/services/collection.service'
-import { productService } from '@/services/product.service'
-import { addProductsToCollection } from '@/services/helpers/product-collection.helper'
+import { handleProductCollection } from '@/services/helpers/product-collection.helper'
+import { addProductIntoCollection, removeProductFromCollection, Product } from '@/domains/catalog'
 
-describe('addProductsToCollection', () => {
+jest.mock('../../../domains/catalog', () => ({
+  addProductIntoCollection: jest.fn(),
+  removeProductFromCollection: jest.fn(),
+}))
+
+describe('handleProductCollection', () => {
+  const product: Product = {
+    id: 1,
+    name: 'Test Product',
+    quantity: 1,
+    price: '100',
+    description: 'Test Desc',
+    cutting_type: 'Standard',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+
   beforeEach(() => {
-    collectionService.clearMemory()
-    productService.clearMemory()
+    jest.clearAllMocks()
   })
 
-  it('should create a collection and add products', async () => {
-    const products = [
-      { collectionName: 'Summer', name: 'Sunglasses', quantity: 5, price: 20 },
-      { collectionName: 'Summer', name: 'Hat', quantity: 10, price: 15 },
-    ]
+  it('should add product when oldCollectionId is null and newCollectionId exists', async () => {
+    await handleProductCollection(product, undefined, 5)
 
-    const result = await addProductsToCollection(products)
-
-    expect(result).toHaveLength(2)
-    expect(result[0].collection_id).toBe(1)
-    expect(result[1].collection_id).toBe(1)
-
-    const collections = await collectionService.listCollections()
-    expect(collections).toHaveLength(1)
-    expect(collections[0].name).toBe('Summer')
-    expect(collections[0].products).toHaveLength(2)
-    expect(collections[0].products?.map(p => p.name)).toEqual(['Sunglasses', 'Hat'])
-
-    const allProducts = await productService.listProducts()
-    expect(allProducts).toHaveLength(2)
-    expect(allProducts.map(p => p.name)).toEqual(['Sunglasses', 'Hat'])
+    expect(addProductIntoCollection).toHaveBeenCalledWith(product.id, 5)
+    expect(removeProductFromCollection).not.toHaveBeenCalled()
   })
 
-  it('should not duplicate products', async () => {
-    const products = [
-      { collectionName: 'Winter', name: 'Scarf', quantity: 3, price: 12 },
-    ]
+  it('should remove old and add new when collectionId changes', async () => {
+    await handleProductCollection(product, 3, 7)
 
-    await addProductsToCollection(products)
-    await addProductsToCollection(products) // same product again
-
-    const collections = await collectionService.listCollections()
-    expect(collections).toHaveLength(1)
-    expect(collections[0].products).toHaveLength(1) // duplicate ignored
-
-    const allProducts = await productService.listProducts()
-    expect(allProducts).toHaveLength(1)
+    expect(removeProductFromCollection).toHaveBeenCalledWith(product.id)
+    expect(addProductIntoCollection).toHaveBeenCalledWith(product.id, 7)
   })
 
-  it('should create multiple collections', async () => {
-    const products = [
-      { collectionName: 'Summer', name: 'Sunglasses', quantity: 5, price: 20 },
-      { collectionName: 'Winter', name: 'Gloves', quantity: 4, price: 10 },
-    ]
+  it('should remove product when newCollectionId is null and oldCollectionId exists', async () => {
+    await handleProductCollection(product, 2, undefined)
 
-    await addProductsToCollection(products)
+    expect(removeProductFromCollection).toHaveBeenCalledWith(product.id)
+    expect(addProductIntoCollection).not.toHaveBeenCalled()
+  })
 
-    const collections = await collectionService.listCollections()
-    expect(collections).toHaveLength(2)
-    expect(collections.map(c => c.name)).toEqual(['Summer', 'Winter'])
+  it('should do nothing when both old and new collectionId are null', async () => {
+    await handleProductCollection(product, undefined, undefined)
+
+    expect(removeProductFromCollection).not.toHaveBeenCalled()
+    expect(addProductIntoCollection).not.toHaveBeenCalled()
+  })
+
+  it('should do nothing when oldCollectionId equals newCollectionId', async () => {
+    await handleProductCollection(product, 4, 4)
+
+    expect(removeProductFromCollection).not.toHaveBeenCalled()
+    expect(addProductIntoCollection).not.toHaveBeenCalled()
   })
 })
