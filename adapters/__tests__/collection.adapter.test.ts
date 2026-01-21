@@ -9,16 +9,16 @@ describe('CollectionAdapter', () => {
     description: 'A collection of summer products',
     image: 'image.png',
     isAvailable: true,
-    createdAt: '2026-01-18T00:00:00Z',
-    updatedAt: '2026-01-18T00:00:00Z',
+    created_at: '2026-01-18T00:00:00Z',
+    updated_at: '2026-01-18T00:00:00Z',
     products: [
       {
         id: 101,
         name: 'T-shirt',
         quantity: 10,
         price: 20,
-        createdAt: '2026-01-18T00:00:00Z',
-        updatedAt: '2026-01-18T00:00:00Z',
+        created_at: '2026-01-18T00:00:00Z',
+        updated_at: '2026-01-18T00:00:00Z',
       },
     ],
   }

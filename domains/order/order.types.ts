@@ -12,8 +12,8 @@ export interface Order {
   userId: UserId
   total: string   // BigDecimal from backend
   shippingId?: ShippingId
-  createdAt: string
-  updatedAt: string
+  created_at: string
+  updated_at: string
 }
 
 export interface CreateOrder {
@@ -35,7 +35,7 @@ export interface OrderItem {
   productId: ProductId
   quantity: number
   price: string
-  createdAt: string
+  created_at: string
 }
 
 export interface CreateOrderItem {

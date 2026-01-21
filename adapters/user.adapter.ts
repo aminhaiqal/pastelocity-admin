@@ -7,16 +7,16 @@ export const UserAdapter = {
       name: json.name,
       email: json.email,
       phone: json.phone,
-      createdAt: new Date(json.createdAt).toISOString(),
+      created_at: new Date(json.created_at).toISOString(),
     }
   },
 
   toJson(user: User | CreateUser | UpdateUser) {
     const json: any = { ...user }
 
-    // Only include createdAt if it exists (only full User has it)
-    if ("createdAt" in user && user.createdAt) {
-      json.createdAt = user.createdAt
+    // Only include created_at if it exists (only full User has it)
+    if ("created_at" in user && user.created_at) {
+      json.created_at = user.created_at
     }
 
     return json

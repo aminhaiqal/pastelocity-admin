@@ -18,8 +18,8 @@ class OrderService {
     if (STRATEGY === "memory") {
       const newOrder: Order = {
         id: this.inMemoryOrders.length + 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         ...input,
       }
       this.inMemoryOrders.push(newOrder)
@@ -48,7 +48,7 @@ class OrderService {
       const updated: Order = {
         ...this.inMemoryOrders[index],
         ...input,
-        updatedAt: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }
       this.inMemoryOrders[index] = updated
       return updated
@@ -67,8 +67,8 @@ class OrderService {
     if (STRATEGY === "memory") {
       this.inMemoryOrders = orders.map((o, index) => ({
         id: this.inMemoryOrders.length + index + 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         ...o,
       }))
       console.log(`[OrderService] Seeded ${orders.length} orders in memory`)

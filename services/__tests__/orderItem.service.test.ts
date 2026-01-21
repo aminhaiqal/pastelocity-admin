@@ -22,7 +22,7 @@ describe('OrderItemService (memory strategy)', () => {
     expect(item.productId).toBe(2)
     expect(item.quantity).toBe(3)
     expect(item.price).toBe('30.00')
-    expect(item.createdAt).toBeDefined()
+    expect(item.created_at).toBeDefined()
   })
 
   it('should get an order item by id', async () => {

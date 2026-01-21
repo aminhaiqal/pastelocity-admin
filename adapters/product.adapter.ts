@@ -5,24 +5,23 @@ export const ProductAdapter = {
   fromJson(json: any): Product {
     return {
       id: json.id,
-      collectionId: json.collectionId,
+      collection_id: json.collection_id,
       name: json.name,
       color: json.color,
       length: json.length,
       quantity: json.quantity,
       price: json.price,
-      cuttingType: json.cuttingType,
-      imageUrl: json.imageUrl,
-      description: json.description,
-      createdAt: new Date(json.createdAt).toISOString(),
-      updatedAt: new Date(json.updatedAt).toISOString(),
+      cutting_type: json.cutting_type,
+      image_url: json.image_url,
+      created_at: new Date(json.created_at).toISOString(),
+      updated_at: new Date(json.updated_at).toISOString(),
     }
   },
 
   toJson(product: Product | CreateProduct | UpdateProduct) {
     const json: any = { ...product }
-    if ("createdAt" in product && product.createdAt) json.createdAt = product.createdAt
-    if ("updatedAt" in product && product.updatedAt) json.updatedAt = product.updatedAt
+    if ("created_at" in product && product.created_at) json.created_at = product.created_at
+    if ("updated_at" in product && product.updated_at) json.updated_at = product.updated_at
     return json
   },
 }

@@ -17,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 const collectionSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   description: z.string().optional(),
-  imageUrl: z
+  image_url: z
     .string()
     .optional()
     .refine((val) => !val || val.trim() !== "", { message: "Image filename is required" }),
@@ -38,7 +38,7 @@ export function CollectionForm({ initialData, onSubmit, isSubmitting }: Collecti
     defaultValues: {
       name: "",
       description: "",
-      imageUrl: "",
+      image_url: "",
       isAvailable: false,
       ...initialData,
     },
@@ -46,8 +46,8 @@ export function CollectionForm({ initialData, onSubmit, isSubmitting }: Collecti
 
   const handleSubmit: SubmitHandler<CollectionFormValues> = (data) => {
     // Prepend the public bucket URL if filename exists
-    if (data.imageUrl) {
-      data.imageUrl = `https://storage.pastelocity.com.my/public/${data.imageUrl}`
+    if (data.image_url) {
+      data.image_url = `https://storage.pastelocity.com.my/public/${data.image_url}`
     }
     onSubmit(data)
   }
@@ -88,7 +88,7 @@ export function CollectionForm({ initialData, onSubmit, isSubmitting }: Collecti
         {/* Image Filename */}
         <FormField
           control={form.control}
-          name="imageUrl"
+          name="image_url"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Collection Image Filename</FormLabel>

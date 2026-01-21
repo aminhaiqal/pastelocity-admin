@@ -17,25 +17,18 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import React from "react"
-
-// Cutting type enum
-export enum CuttingType {
-  LONG_SLEEVE = "Long Sleeve",
-  CUTTING_SLIM = "Cutting Slim",
-  KAFTAN = "Kaftan",
-  BLOUSE = "Blouse",
-}
+import { cutting_type } from "@/enums"
 
 // Validation schema
 const productSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
-  description: z.string().optional(),
+  description: z.string().min(1, { message: "Name is required" }),
   color: z.string().optional(),
   length: z.number().min(0, { message: "Length must be >= 0" }),
   quantity: z.number().min(0, { message: "Quantity must be >= 0" }),
   price: z.number().min(0, { message: "Price must be >= 0" }),
-  cutting_type: z.nativeEnum(CuttingType).optional(),
-  imageUrl: z
+  cutting_type: z.nativeEnum(cutting_type),
+  image_url: z
     .string()
     .optional()
     .refine((val) => !val || val.trim() !== "", { message: "Image filename is required" }),
@@ -54,21 +47,18 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
     resolver: zodResolver(productSchema),
     defaultValues: initialData || {
       name: "",
-      description: "",
       color: "",
       length: 0,
       quantity: 0,
       price: 0,
+      image_url: "",
     },
   })
 
-  const [selectedQuantityButton, setSelectedQuantityButton] = React.useState<number | "Other" | null>(null)
+  const [selectedQuantityButton, setSelectedQuantityButton] = React.useState<number | "Other" | null>(form.getValues("quantity"))
   const [customQuantity, setCustomQuantity] = React.useState<number>(form.getValues("quantity"))
 
   const handleSubmit: SubmitHandler<ProductFormValues> = async (data) => {
-    // Ensure price is 2 decimals
-    data.price = parseFloat(data.price.toFixed(2))
-
     // If "Other" was selected, use custom quantity
     if (selectedQuantityButton === "Other") {
       data.quantity = customQuantity
@@ -89,7 +79,6 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
   }
 
   const quantityOptions = [1, 5, 10, 50, "Other"] as const
-  const priceOptions = [50, "Custom"] as const
 
   return (
     <Form {...form}>
@@ -98,7 +87,7 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
         {/* Image URL */}
         <FormField
           control={form.control}
-          name="imageUrl"
+          name="image_url"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Image Filename</FormLabel>
@@ -131,7 +120,7 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
           )}
         />
 
-        {/* Description */}
+        {/* Description */} 
         <FormField
           control={form.control}
           name="description"
@@ -176,7 +165,7 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
                   placeholder="54"
                   {...field}
                   onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                  value={field.value || ""}
+                  value={Number(field.value) || ""}
                 />
               </FormControl>
               <FormMessage />
@@ -238,10 +227,9 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
                     field.onChange(value)
                   }}
                   onBlur={() => {
-                    // Always format to 2 decimals
                     field.onChange(parseFloat(field.value.toFixed(2)))
                   }}
-                  value={field.value?.toFixed(2) || "0.00"}
+                  value={Number(field.value)?.toFixed(2) || "0.00"}
                 />
               </FormControl>
               <FormMessage />
@@ -262,7 +250,7 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
                     <SelectValue placeholder="Select cutting type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.values(CuttingType).map((type) => (
+                    {Object.values(cutting_type).map((type) => (
                       <SelectItem key={type} value={type}>
                         {type}
                       </SelectItem>

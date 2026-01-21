@@ -23,6 +23,7 @@ export function useProducts() {
 
   // Create product
   function createProduct(input: CreateProduct) {
+    console.log(input)
     startTransition(async () => {
       const created = await createProductAction(input)
       setProducts((prev) => [...prev, created])

@@ -1,7 +1,7 @@
 "use client"
 
 import { Product } from "@/domains/catalog"
-import { Button } from "@/components/ui/button" // shadcn button
+import { Button } from "@/components/ui/button"
 
 type Props = {
   product: Product
@@ -19,10 +19,10 @@ export default function ProductCard({ product, isSelected, onSelect, onEdit, onD
         ${isSelected ? "border-indigo-500 shadow-md" : "border-gray-200 hover:shadow-md"}
       `}
     >
-      {product.imageUrl ? (
+      {product.image_url ? (
         <div className="w-full h-48 overflow-hidden">
           <img
-            src={product.imageUrl}
+            src={product.image_url}
             alt={product.name}
             className="w-full h-full object-cover"
           />
@@ -38,8 +38,8 @@ export default function ProductCard({ product, isSelected, onSelect, onEdit, onD
         {product.color && <p className="text-sm text-gray-500">Color: {product.color}</p>}
         {product.length && <p className="text-sm text-gray-500">Length: {product.length} inch</p>}
         <p className="text-sm text-gray-500">Quantity: {product.quantity}</p>
-        <p className="text-sm font-medium text-gray-700">Cutting Type: {product.cuttingType}</p>
-        <p className="text-sm font-medium text-gray-700">Price: RM{product.price.toFixed(2)}</p>
+        <p className="text-sm font-medium text-gray-700">Cutting Type: {product.cutting_type}</p>
+        <p className="text-sm font-medium text-gray-700">Price: RM{Number(product.price).toFixed(2)}</p>
 
         <div className="mt-3 flex gap-2">
           <Button

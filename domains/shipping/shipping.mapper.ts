@@ -41,7 +41,7 @@ export const mapShippingDTO = (dto: any): Shipping => ({
   city: dto.city,
   stateName: dto.state_name,
   deliveryOptionId: dto.delivery_option_id ?? undefined,
-  createdAt: dto.created_at,
+  created_at: dto.created_at,
 })
 
 export const mapCreateShippingPayload = (input: CreateShipping) => ({

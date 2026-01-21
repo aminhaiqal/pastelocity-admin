@@ -6,7 +6,7 @@ import { Product, Collection, CollectionList } from "./catalog.types"
 
 // PRODUCTS
 export async function listProducts(): Promise<Product[]> {
-  const { data } = await catalogApi.listProducts()
+  const { data } = await catalogApi.listProducts() 
   return data.map(mapProductDTO)
 }
 

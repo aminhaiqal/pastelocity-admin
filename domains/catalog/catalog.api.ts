@@ -10,15 +10,12 @@ export const catalogApi = {
   // -----------------------------
   listProducts: () => api.get<Product[]>("/product"),
   getProduct: (id: number) => api.get<Product>(`/product/${id}`),
-  getProductsByCollection: (collectionId: number) =>
-    api.get<Product[]>(`/collection/${collectionId}/product`),
+  getProductsByCollection: (collection_id: number) => api.get<Product[]>(`/collection/${collection_id}/product`),
   createProduct: (payload: CreateProduct) => api.post<Product>("/product", payload),
   updateProduct: (id: number, payload: UpdateProduct) => api.put<Product>(`/product/${id}`, payload),
   deleteProduct: (id: number) => api.delete<Product>(`/product/${id}`),
-  addProductToCollection: (productId: number, collectionId: number) =>
-    api.put<Product>(`/product/${productId}/collection/${collectionId}`),
-  removeProductFromCollection: (productId: number) =>
-    api.delete<Product>(`/product/${productId}/collection`),
+  addProductToCollection: (productId: number, collection_id: number) => api.put<Product>(`/product/${productId}/collection/${collection_id}`),
+  removeProductFromCollection: (productId: number) => api.delete<Product>(`/product/${productId}/collection`),
 
   // -----------------------------
   // Collection endpoints

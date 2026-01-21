@@ -5,5 +5,5 @@ export const mapUserDTO = (dto: any): User => ({
   name: dto.name,
   email: dto.email,
   phone: dto.phone ?? undefined,
-  createdAt: dto.created_at
+  created_at: dto.created_at
 })

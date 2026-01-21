@@ -17,7 +17,7 @@ class ShippingService {
     if (STRATEGY === "memory") {
       const newShipping: Shipping = {
         id: this.inMemoryShippings.length + 1,
-        createdAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
         ...input,
       }
       this.inMemoryShippings.push(newShipping)
@@ -68,7 +68,7 @@ class ShippingService {
     if (STRATEGY === "memory") {
       this.inMemoryShippings = inputs.map((i, index) => ({
         id: this.inMemoryShippings.length + index + 1,
-        createdAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
         ...i,
       }))
       return this.inMemoryShippings

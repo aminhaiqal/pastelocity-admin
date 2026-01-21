@@ -21,8 +21,8 @@ describe('OrderService (memory strategy)', () => {
     expect(order.userId).toBe(1)
     expect(order.total).toBe('100.00')
     expect(order.shippingId).toBe(1)
-    expect(order.createdAt).toBeDefined()
-    expect(order.updatedAt).toBeDefined()
+    expect(order.created_at).toBeDefined()
+    expect(order.updated_at).toBeDefined()
   })
 
   it('should get an order by id', async () => {
@@ -60,7 +60,7 @@ describe('OrderService (memory strategy)', () => {
     expect(updated.total).toBe('15.00')
     expect(updated.shippingId).toBe(2)
     expect(updated.userId).toBe(1) // unchanged
-    expect(updated.updatedAt).toBeDefined()
+    expect(updated.updated_at).toBeDefined()
   })
 
   it('should throw when updating non-existent order', async () => {

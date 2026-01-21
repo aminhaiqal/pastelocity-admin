@@ -18,7 +18,7 @@ class OrderItemService {
     if (STRATEGY === "memory") {
       const newItem: OrderItem = {
         id: this.inMemoryOrderItems.length + 1,
-        createdAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
         ...input,
       }
       this.inMemoryOrderItems.push(newItem)
@@ -74,7 +74,7 @@ class OrderItemService {
     if (STRATEGY === "memory") {
       this.inMemoryOrderItems = items.map((i, index) => ({
         id: this.inMemoryOrderItems.length + index + 1,
-        createdAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
         ...i,
       }))
       console.log(`[OrderItemService] Seeded ${items.length} items in memory`)

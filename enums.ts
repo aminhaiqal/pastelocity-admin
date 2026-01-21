@@ -1,4 +1,4 @@
-export enum CuttingType {
+export enum cutting_type {
   LONG_SLEEVE = "Long Sleeve",
   CUTTING_SLIM = "Cutting Slim",
   KAFTAN = "Kaftan",

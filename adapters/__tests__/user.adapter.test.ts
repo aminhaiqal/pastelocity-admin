@@ -7,7 +7,7 @@ describe('UserAdapter', () => {
     name: 'John Doe',
     email: 'john@example.com',
     phone: '1234567890',
-    createdAt: '2026-01-18T00:00:00Z',
+    created_at: '2026-01-18T00:00:00Z',
   }
 
   it('should convert JSON to User object', () => {
@@ -17,7 +17,7 @@ describe('UserAdapter', () => {
     expect(user.name).toBe('John Doe')
     expect(user.email).toBe('john@example.com')
     expect(user.phone).toBe('1234567890')
-    expect(user.createdAt).toBe('2026-01-18T00:00:00.000Z')
+    expect(user.created_at).toBe('2026-01-18T00:00:00.000Z')
   })
 
   it('should convert User object back to JSON', () => {
@@ -28,10 +28,10 @@ describe('UserAdapter', () => {
     expect(json.name).toBe('John Doe')
     expect(json.email).toBe('john@example.com')
     expect(json.phone).toBe('1234567890')
-    expect(json.createdAt).toBe('2026-01-18T00:00:00.000Z')
+    expect(json.created_at).toBe('2026-01-18T00:00:00.000Z')
   })
 
-  it('should handle partial User (Create/Update) without createdAt', () => {
+  it('should handle partial User (Create/Update) without created_at', () => {
     const partialUser = {
       name: 'Jane Smith',
       email: 'jane@example.com',
@@ -40,6 +40,6 @@ describe('UserAdapter', () => {
     const json = UserAdapter.toJson(partialUser)
     expect(json.name).toBe('Jane Smith')
     expect(json.email).toBe('jane@example.com')
-    expect(json.createdAt).toBeUndefined()
+    expect(json.created_at).toBeUndefined()
   })
 })

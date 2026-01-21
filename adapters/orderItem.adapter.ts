@@ -8,15 +8,15 @@ export const OrderItemAdapter = {
       productId: json.productId,
       quantity: json.quantity,
       price: json.price,
-      createdAt: new Date(json.createdAt).toISOString(),
+      created_at: new Date(json.created_at).toISOString(),
     }
   },
 
   toJson(orderItem: OrderItem | CreateOrderItem | UpdateOrderItem) {
     const json: any = { ...orderItem }
 
-    // Only include createdAt if it exists (only full OrderItem has it)
-    if ("createdAt" in orderItem && orderItem.createdAt) json.createdAt = orderItem.createdAt
+    // Only include created_at if it exists (only full OrderItem has it)
+    if ("created_at" in orderItem && orderItem.created_at) json.created_at = orderItem.created_at
 
     return json
   },

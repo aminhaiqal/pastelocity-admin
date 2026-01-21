@@ -1,33 +1,33 @@
 export type ProductId = number
-export type CollectionId = number
+export type collection_id = number
 
 // -----------------------------
 // Product
 // -----------------------------
 export interface Product {
   id: ProductId
-  collectionId?: CollectionId
+  collection_id?: collection_id
   name: string
+  description: string
   color?: string
-  length?: number
+  length?: string
   quantity: number
-  price: number
-  cuttingType?: string
-  imageUrl?: string
-  description?: string
-  createdAt: string
-  updatedAt: string
+  price: string
+  cutting_type: string
+  image_url?: string
+  created_at: string
+  updated_at: string
 }
 
 export interface CreateProduct {
   name: string
-  description?: string
+  description: string
   color?: string
   length?: number
   quantity: number
   price: number
-  imageUrl?: string
-  collectionId?: CollectionId
+  cutting_type: string
+  image_url?: string
 }
 
 export interface UpdateProduct extends Partial<CreateProduct> {
@@ -38,7 +38,7 @@ export interface UpdateProduct extends Partial<CreateProduct> {
 // Collection
 // -----------------------------
 export interface CollectionList {
-  id: CollectionId
+  id: collection_id
   name: string
   slug: string
   image?: string
@@ -46,7 +46,7 @@ export interface CollectionList {
 }
 
 export interface Collection {
-  id: CollectionId
+  id: collection_id
   name: string
   slug: string
   description?: string
@@ -65,5 +65,5 @@ export interface CreateCollection {
 }
 
 export interface UpdateCollection extends Partial<CreateCollection> {
-  id: CollectionId
+  id: collection_id
 }

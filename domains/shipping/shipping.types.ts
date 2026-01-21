@@ -8,7 +8,7 @@ export interface Shipping {
   city: string
   stateName: string
   deliveryOptionId?: ID
-  createdAt: string
+  created_at: string
 }
 
 export interface CreateShipping {

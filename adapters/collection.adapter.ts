@@ -11,8 +11,8 @@ export const CollectionAdapter = {
       description: json.description,
       image: json.image,
       is_available: json.isAvailable,
-      created_at: new Date(json.createdAt).toISOString(),
-      updated_at: new Date(json.updatedAt).toISOString(),
+      created_at: new Date(json.created_at).toISOString(),
+      updated_at: new Date(json.updated_at).toISOString(),
       products: json.products?.map(ProductAdapter.fromJson),
     }
   },

@@ -17,8 +17,8 @@ describe('addProductsToCollection', () => {
     const result = await addProductsToCollection(products)
 
     expect(result).toHaveLength(2)
-    expect(result[0].collectionId).toBe(1)
-    expect(result[1].collectionId).toBe(1)
+    expect(result[0].collection_id).toBe(1)
+    expect(result[1].collection_id).toBe(1)
 
     const collections = await collectionService.listCollections()
     expect(collections).toHaveLength(1)

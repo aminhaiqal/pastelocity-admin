@@ -16,6 +16,7 @@ import { CollectionSearchBar } from "@/components/products/collection-search-bar
 import { useProducts } from "@/hooks/use-products"
 import { Product } from "@/domains/catalog"
 import { toast } from "sonner"
+import { productToFormValues } from "@/utils/mapper"
 
 export default function ProductsPage() {
   const { products, createProduct, updateProduct, deleteProduct, isPending } = useProducts()
@@ -92,7 +93,7 @@ export default function ProductsPage() {
               </DialogHeader>
 
               <ProductForm
-                initialData={editingProduct || undefined}
+                initialData={editingProduct ? productToFormValues(editingProduct) : undefined}
                 onSubmit={handleAddOrEditProduct}
                 isSubmitting={isPending}
               />

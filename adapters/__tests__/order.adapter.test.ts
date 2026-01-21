@@ -7,8 +7,8 @@ describe('OrderAdapter', () => {
     userId: 101,
     total: '150.00',
     shippingId: 20,
-    createdAt: '2026-01-18T00:00:00Z',
-    updatedAt: '2026-01-18T00:00:00Z',
+    created_at: '2026-01-18T00:00:00Z',
+    updated_at: '2026-01-18T00:00:00Z',
   }
 
   it('should convert JSON to Order object', () => {
@@ -18,8 +18,8 @@ describe('OrderAdapter', () => {
     expect(order.userId).toBe(101)
     expect(order.total).toBe('150.00')
     expect(order.shippingId).toBe(20)
-    expect(order.createdAt).toBe('2026-01-18T00:00:00.000Z')
-    expect(order.updatedAt).toBe('2026-01-18T00:00:00.000Z')
+    expect(order.created_at).toBe('2026-01-18T00:00:00.000Z')
+    expect(order.updated_at).toBe('2026-01-18T00:00:00.000Z')
   })
 
   it('should convert Order object back to JSON', () => {
@@ -30,11 +30,11 @@ describe('OrderAdapter', () => {
     expect(json.userId).toBe(101)
     expect(json.total).toBe('150.00')
     expect(json.shippingId).toBe(20)
-    expect(json.createdAt).toBe('2026-01-18T00:00:00.000Z')
-    expect(json.updatedAt).toBe('2026-01-18T00:00:00.000Z')
+    expect(json.created_at).toBe('2026-01-18T00:00:00.000Z')
+    expect(json.updated_at).toBe('2026-01-18T00:00:00.000Z')
   })
 
-  it('should handle partial Order (CreateOrder/UpdateOrder) without createdAt/updatedAt', () => {
+  it('should handle partial Order (CreateOrder/UpdateOrder) without created_at/updated_at', () => {
     const partialOrder = {
       userId: 102,
       total: '75.50',
@@ -43,7 +43,7 @@ describe('OrderAdapter', () => {
     const json = OrderAdapter.toJson(partialOrder)
     expect(json.userId).toBe(102)
     expect(json.total).toBe('75.50')
-    expect(json.createdAt).toBeUndefined()
-    expect(json.updatedAt).toBeUndefined()
+    expect(json.created_at).toBeUndefined()
+    expect(json.updated_at).toBeUndefined()
   })
 })

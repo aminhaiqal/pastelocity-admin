@@ -10,16 +10,16 @@ export const ShippingAdapter = {
       city: json.city,
       stateName: json.stateName,
       deliveryOptionId: json.deliveryOptionId,
-      createdAt: new Date(json.createdAt).toISOString(),
+      created_at: new Date(json.created_at).toISOString(),
     }
   },
 
   toJson(shipping: Shipping | CreateShipping | UpdateShipping) {
     const json: any = { ...shipping }
 
-    // Only include createdAt if it exists (only full Shipping has it)
-    if ("createdAt" in shipping && shipping.createdAt) {
-      json.createdAt = shipping.createdAt
+    // Only include created_at if it exists (only full Shipping has it)
+    if ("created_at" in shipping && shipping.created_at) {
+      json.created_at = shipping.created_at
     }
 
     return json

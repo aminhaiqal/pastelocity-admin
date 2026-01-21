@@ -10,7 +10,7 @@ describe('ShippingAdapter', () => {
     city: 'Los Angeles',
     stateName: 'California',
     deliveryOptionId: 20,
-    createdAt: '2026-01-18T00:00:00Z',
+    created_at: '2026-01-18T00:00:00Z',
   }
 
   it('should convert JSON to Shipping object', () => {
@@ -23,7 +23,7 @@ describe('ShippingAdapter', () => {
     expect(shipping.city).toBe('Los Angeles')
     expect(shipping.stateName).toBe('California')
     expect(shipping.deliveryOptionId).toBe(20)
-    expect(shipping.createdAt).toBe('2026-01-18T00:00:00.000Z')
+    expect(shipping.created_at).toBe('2026-01-18T00:00:00.000Z')
   })
 
   it('should convert Shipping object back to JSON', () => {
@@ -37,10 +37,10 @@ describe('ShippingAdapter', () => {
     expect(json.city).toBe('Los Angeles')
     expect(json.stateName).toBe('California')
     expect(json.deliveryOptionId).toBe(20)
-    expect(json.createdAt).toBe('2026-01-18T00:00:00.000Z')
+    expect(json.created_at).toBe('2026-01-18T00:00:00.000Z')
   })
 
-  it('should handle partial Shipping (Create/Update) without createdAt', () => {
+  it('should handle partial Shipping (Create/Update) without created_at', () => {
     const partialShipping = {
       address1: '456 Elm St',
       zip: '10001',
@@ -53,6 +53,6 @@ describe('ShippingAdapter', () => {
     expect(json.zip).toBe('10001')
     expect(json.city).toBe('New York')
     expect(json.stateName).toBe('NY')
-    expect(json.createdAt).toBeUndefined()
+    expect(json.created_at).toBeUndefined()
   })
 })

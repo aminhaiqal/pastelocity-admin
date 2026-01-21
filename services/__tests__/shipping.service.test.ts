@@ -29,7 +29,7 @@ describe('ShippingService (memory strategy)', () => {
     expect(shipping.stateName).toBe('State')
     expect(shipping.deliveryRateId).toBe(1)
     expect(shipping.deliveryOptionId).toBe(2)
-    expect(shipping.createdAt).toBeDefined()
+    expect(shipping.created_at).toBeDefined()
   })
 
   it('should get a shipping by id', async () => {

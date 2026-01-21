@@ -2,17 +2,17 @@ import { Product, Collection, CollectionList } from "./catalog.types"
 
 export const mapProductDTO = (dto: any): Product => ({
   id: dto.id,
-  collectionId: dto.collection_id,
+  collection_id: dto.collection_id,
   name: dto.name,
+  description: dto.description,
   color: dto.color,
   length: dto.length,
   quantity: dto.quantity,
   price: dto.price,
-  cuttingType: dto.cutting_type,
-  imageUrl: dto.image_url,
-  description: dto.description,
-  createdAt: dto.created_at,
-  updatedAt: dto.updated_at,
+  cutting_type: dto.cutting_type,
+  image_url: dto.image_url,
+  created_at: dto.created_at,
+  updated_at: dto.updated_at,
 })
 
 export const mapCollectionDTO = (dto: any): Collection => ({

@@ -14,7 +14,7 @@ interface ProductWithCollection extends CreateProduct {
  * - Ignores duplicate products (by name + collection)
  */
 export async function addProductsToCollection(products: ProductWithCollection[]) {
-  const results: { collectionId: number; productIds: number[] }[] = []
+  const results: { collection_id: number; productIds: number[] }[] = []
 
   for (const productInput of products) {
     const { collectionName, ...prodData } = productInput
@@ -42,14 +42,14 @@ export async function addProductsToCollection(products: ProductWithCollection[])
 
     const newProduct = await productService.createProduct({
       ...prodData,
-      collectionId: collection.id,
+      collection_id: collection.id,
     })
 
     collection.products = collection.products || []
     collection.products.push(newProduct)
 
     results.push({
-      collectionId: collection.id,
+      collection_id: collection.id,
       productIds: [newProduct.id],
     })
   }

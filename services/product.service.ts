@@ -22,8 +22,8 @@ class ProductService {
     if (STRATEGY === "memory") {
       const newProduct: Product = {
         id: this.inMemoryProducts.length + 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         ...input,
       }
       this.inMemoryProducts.push(newProduct)
@@ -52,7 +52,7 @@ class ProductService {
       const updated: Product = {
         ...this.inMemoryProducts[index],
         ...input,
-        updatedAt: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }
       this.inMemoryProducts[index] = updated
       return updated
@@ -78,8 +78,8 @@ class ProductService {
     if (STRATEGY === "memory") {
       this.inMemoryProducts = products.map((p, index) => ({
         id: this.inMemoryProducts.length + index + 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         ...p,
       }))
       console.log(`[ProductService] Seeded ${products.length} products in memory`)

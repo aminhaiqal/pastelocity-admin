@@ -5,7 +5,7 @@ export interface User {
   name: string
   email: string
   phone?: string
-  createdAt: string
+  created_at: string
 }
 
 export interface CreateUser {

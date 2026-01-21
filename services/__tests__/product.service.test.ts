@@ -24,8 +24,8 @@ describe('ProductService (memory strategy)', () => {
     expect(product.price).toBe(100)
     expect(product.description).toBe('Test product')
     expect(product.color).toBe('Red')
-    expect(product.createdAt).toBeDefined()
-    expect(product.updatedAt).toBeDefined()
+    expect(product.created_at).toBeDefined()
+    expect(product.updated_at).toBeDefined()
   })
 
   it('should get a product by id', async () => {
