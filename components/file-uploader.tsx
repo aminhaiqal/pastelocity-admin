@@ -22,39 +22,42 @@ export default function FileUploader({
   const [remoteFiles, setRemoteFiles] = useState<string[]>([])
 
   // -------------------------------
-  // Fetch remote files for collection
+  // Helpers
   // -------------------------------
-useEffect(() => {
-  if (!collectionSlug) return
+  const getFileName = (url: string) => url.split("/").pop() || url
 
-  const fetchFiles = async () => {
-    try {
-      const res = await fetch(`/api/files/${collectionSlug}?list=true`)
-      if (!res.ok) throw new Error("Failed to fetch remote files")
-      const data: { url: string }[] = await res.json()
+  const filterTopLevelFiles = (data: { url: string }[]) =>
+    data.filter(f => {
+      const pathAfterSlug = f.url.split(`/${collectionSlug}/`)[1]
+      return pathAfterSlug && !pathAfterSlug.includes("/")
+    })
 
-      const filtered = data.filter(f => {
-        const pathAfterSlug = f.url.split(`/${collectionSlug}/`)[1]
-        return pathAfterSlug && !pathAfterSlug.includes("/")
-      })
+  // -------------------------------
+  // Fetch remote files
+  // -------------------------------
+  useEffect(() => {
+    if (!collectionSlug) return
 
-      setRemoteFiles(filtered.map(f => f.url))
-    } catch (err) {
-      console.error(err)
+    const fetchFiles = async () => {
+      try {
+        const res = await fetch(`/api/files/${collectionSlug}?list=true`)
+        if (!res.ok) throw new Error("Failed to fetch remote files")
+        const data: { url: string }[] = await res.json()
+        const topLevel = filterTopLevelFiles(data)
+        setRemoteFiles(topLevel.map(f => f.url))
+      } catch (err) {
+        console.error(err)
+      }
     }
-  }
 
-  fetchFiles()
-}, [collectionSlug])
-
+    fetchFiles()
+  }, [collectionSlug])
 
   // -------------------------------
   // Dropzone
   // -------------------------------
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      onFilesChange([...files, ...acceptedFiles])
-    },
+    (acceptedFiles: File[]) => onFilesChange([...files, ...acceptedFiles]),
     [files, onFilesChange]
   )
 
@@ -64,95 +67,81 @@ useEffect(() => {
   })
 
   // -------------------------------
-  // Remove a local file
+  // Remove handlers
   // -------------------------------
   const removeLocalFile = (index: number) => {
-    const newFiles = [...files]
-    newFiles.splice(index, 1)
-    onFilesChange(newFiles)
+    const updated = [...files]
+    updated.splice(index, 1)
+    onFilesChange(updated)
+  }
+
+  const removeRemoteFile = (index: number) => {
+    const updated = [...remoteFiles]
+    updated.splice(index, 1)
+    setRemoteFiles(updated)
+    onRemoteFilesChange?.(updated)
   }
 
   // -------------------------------
-  // Remove a remote file
+  // Subcomponents
   // -------------------------------
-  const removeRemoteFile = (index: number) => {
-    const newRemoteFiles = [...remoteFiles]
-    newRemoteFiles.splice(index, 1)
-    setRemoteFiles(newRemoteFiles)
-    onRemoteFilesChange?.(newRemoteFiles)
-    // Optionally: call API to delete remote file from MinIO
-  }
+  const FileList = ({
+    files,
+    onRemove,
+    isRemote = false,
+  }: {
+    files: (File | string)[]
+    onRemove: (index: number) => void
+    isRemote?: boolean
+  }) => (
+    <>
+      {files.map((file, idx) => {
+        const url = isRemote ? (file as string) : URL.createObjectURL(file as File)
+        const name = isRemote ? getFileName(file as string) : (file as File).name
+        return (
+          <div key={name + idx} className="flex justify-between items-center">
+            <a href={url} target="_blank" className="text-primary underline break-all">
+              {name}
+            </a>
+            <IconTrash
+              size={16}
+              className="cursor-pointer text-destructive"
+              onClick={() => onRemove(idx)}
+            />
+          </div>
+        )
+      })}
+    </>
+  )
+
+  const DropzoneArea = () => (
+    <div
+      {...getRootProps()}
+      className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition ${
+        isDragActive ? "border-primary bg-primary/10" : "border-muted hover:border-primary"
+      }`}
+    >
+      <input {...getInputProps()} />
+      <p className={isDragActive ? "text-primary font-medium" : "text-muted-foreground"}>
+        {isDragActive ? "Drop files here..." : "Drag & drop files here, or click to select"}
+      </p>
+    </div>
+  )
 
   return (
     <Card className="w-full max-w-xl mx-auto">
       <CardContent>
-        {/* Dropzone */}
-        <div
-          {...getRootProps()}
-          className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition ${
-            isDragActive
-              ? "border-primary bg-primary/10"
-              : "border-muted hover:border-primary"
-          }`}
-        >
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <p className="text-primary font-medium">Drop files here...</p>
-          ) : (
-            <p className="text-muted-foreground">
-              Drag & drop files here, or click to select
-            </p>
-          )}
-        </div>
+        <DropzoneArea />
 
-        {/* File lists */}
         {(files.length > 0 || remoteFiles.length > 0) && (
           <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
-            {/* Local files */}
-            {files.map((file, idx) => (
-              <div key={file.name + idx} className="flex justify-between items-center">
-                <a
-                  href={URL.createObjectURL(file)}
-                  target="_blank"
-                  className="text-primary underline break-all"
-                >
-                  {file.name}
-                </a>
-                <IconTrash
-                  size={16}
-                  className="cursor-pointer text-destructive"
-                  onClick={() => removeLocalFile(idx)}
-                />
-              </div>
-            ))}
-
-            {/* Remote files */}
-            {remoteFiles.map((fileUrl, idx) => (
-              <div key={fileUrl + idx} className="flex justify-between items-center">
-                <a
-                  href={fileUrl}
-                  target="_blank"
-                  className="text-primary underline break-all"
-                >
-                  {fileUrl.split("/").pop()}
-                </a>
-                <IconTrash
-                  size={16}
-                  className="cursor-pointer text-destructive"
-                  onClick={() => removeRemoteFile(idx)}
-                />
-              </div>
-            ))}
+            <FileList files={files} onRemove={removeLocalFile} />
+            <FileList files={remoteFiles} onRemove={removeRemoteFile} isRemote />
           </div>
         )}
 
-        {/* Clear all local files */}
         {files.length > 0 && (
-          <Button
-            className="mt-4"
-            variant="outline"
-            onClick={() => onFilesChange([])}
-          >
+          <Button className="mt-4" variant="outline" onClick={() => onFilesChange([])}>
             Clear All Files
           </Button>
         )}
