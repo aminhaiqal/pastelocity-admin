@@ -28,21 +28,22 @@ export default function CollectionsPage() {
 
   const [open, setOpen] = useState(false)
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
 
   const handleFormSubmit = async (values: CollectionFormValues) => {
     try {
       const result = await addOrEditCollection({
         values,
         editingCollection,
-        file: selectedFile,
+        files: selectedFiles,
       })
 
       toast.success(result.message)
+      setSelectedFiles([])
       setEditingCollection(null)
-      setSelectedFile(null)
       setOpen(false)
       await refreshCollections()
+
     } catch (err: any) {
       toast.error(err?.message || "Failed to save collection")
     }
@@ -90,9 +91,13 @@ export default function CollectionsPage() {
             </DialogHeader>
 
             <FileUploader
-              file={selectedFile}
-              onFileSelect={setSelectedFile}
-              initialFileUrl={editingCollection?.image || undefined}
+              files={selectedFiles}
+              onFilesChange={setSelectedFiles}
+              initialFileUrls={
+                editingCollection?.image
+                  ? [editingCollection.image]
+                  : []
+              }
             />
 
             <CollectionForm

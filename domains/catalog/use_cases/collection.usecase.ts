@@ -1,61 +1,83 @@
 import { CollectionFormValues } from "@/components/collections/collection-form"
 import { collectionService } from "@/services/collection.service"
-import { Collection } from "@/domains/catalog"
+import { Collection, CreateCollection, UpdateCollection } from "@/domains/catalog"
 
 export interface AddOrEditCollectionParams {
   values: CollectionFormValues
   editingCollection?: Collection | null
-  file?: File | null
+  files?: File[]
 }
 
 export const addOrEditCollection = async ({
   values,
   editingCollection,
-  file,
+  files = [],
 }: AddOrEditCollectionParams) => {
   try {
-    let uploadedFilePath: string | null = null
+    const collectionSlug = editingCollection
+      ? editingCollection.slug
+      : toSlug(values.name)
 
-    // Upload image only if user selected a file
-    if (file) {
-      const formData = new FormData()
-      formData.append("file", file)
+    const uploadedImage = files[0]
+      ? await uploadCollectionImage(files[0], collectionSlug)
+      : undefined
 
-      const res = await fetch("/api/files/upload", {
-        method: "POST",
-        body: formData,
-      })
+    const image = uploadedImage ?? editingCollection?.image
 
-      if (!res.ok) throw new Error("File upload failed")
+    // ------------------------
+    // UPDATE
+    // ------------------------
+    if (editingCollection?.id) {
+      const payload: UpdateCollection = {
+        id: editingCollection.id,
+        ...basePayload(values, image),
+      }
 
-      const data = await res.json()
-      uploadedFilePath = data.url
+      return {
+        message: "Collection updated",
+        collection: await collectionService.updateCollection(payload),
+      }
     }
 
-    if (editingCollection?.id) {
-      const payload = {
-        id: editingCollection.id,
-        name: values.name,
-        description: values.description ?? "",
-        is_available: values.isAvailable ?? false,
-        image: uploadedFilePath ?? editingCollection.image ?? undefined,
-      }
+    // ------------------------
+    // CREATE
+    // ------------------------
+    const payload: CreateCollection = basePayload(values, image)
 
-      const result = await collectionService.updateCollection(payload)
-      return { message: "Collection updated", collection: result }
-    } else {
-      const payload = {
-        name: values.name,
-        description: values.description ?? "",
-        is_available: values.isAvailable ?? false,
-        image: uploadedFilePath ?? undefined,
-      }
-
-      const result = await collectionService.createCollection(payload)
-      return { message: "Collection added", collection: result }
+    return {
+      message: "Collection added",
+      collection: await collectionService.createCollection(payload),
     }
   } catch (err: any) {
     console.error(err)
     throw new Error(err?.message || "Failed to save collection")
   }
 }
+
+const uploadCollectionImage = async (
+  file: File,
+  collectionSlug: string
+): Promise<string> => {
+  const safeName = sanitizeText(file.name)
+
+  const formData = new FormData()
+  formData.append("file", file)
+  formData.append("path", `${collectionSlug}/${safeName}`)
+
+  const res = await fetch("/api/files/upload", {
+    method: "POST",
+    body: formData,
+  })
+
+  if (!res.ok) throw new Error("File upload failed")
+
+  const data = await res.json()
+  return data.url as string
+}
+
+const basePayload = (values: CollectionFormValues, image?: string) => ({
+  name: values.name,
+  description: values.description ?? "",
+  is_available: values.isAvailable ?? false,
+  image,
+})
