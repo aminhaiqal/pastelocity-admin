@@ -19,3 +19,11 @@ export class DownloadFileUseCase {
     return this.repo.getStream(path)
   }
 }
+
+export class ListCollectionFilesUseCase {
+  constructor(private repo: FileRepository) {}
+
+  execute(collectionSlug: string) {
+    return this.repo.list(`${collectionSlug}/`)
+  }
+}

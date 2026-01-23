@@ -1,3 +1,4 @@
+import { FileObject } from "@/domains/file/file.entity"
 import { FileRepository } from "@/domains/file/file.repository"
 import { MINIO_BUCKET, minioClient } from "@/lib/minio"
 
@@ -27,18 +28,20 @@ export class MinioFileRepository implements FileRepository {
     return minioClient.getObject(MINIO_BUCKET, name)
   }
 
-  async list(prefix = "") {
+  async list(prefix = ""): Promise<FileObject[]> {
     const stream = minioClient.listObjectsV2(
       MINIO_BUCKET,
       prefix,
       true
     )
 
-    const files: any[] = []
+    const files: FileObject[] = []
 
     for await (const obj of stream) {
+      if (!obj.name) continue
+
       files.push({
-        name: obj.name.split("/").pop(),
+        name: obj.name.split("/").pop()!,
         path: obj.name,
         size: obj.size,
         mimeType: obj.metaData?.["content-type"],
@@ -47,5 +50,5 @@ export class MinioFileRepository implements FileRepository {
 
     return files
   }
-
+  
 }

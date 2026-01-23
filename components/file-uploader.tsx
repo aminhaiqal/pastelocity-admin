@@ -1,18 +1,56 @@
 "use client"
 
-import { useCallback } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useDropzone } from "react-dropzone"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { IconTrash } from "@tabler/icons-react"
 
 interface FileUploaderProps {
-  files: File[]
+  files: File[] 
   onFilesChange: (files: File[]) => void
-  initialFileUrls?: string[]
+  collectionSlug?: string
+  onRemoteFilesChange?: (urls: string[]) => void
 }
 
-export default function FileUploader({ files, onFilesChange, initialFileUrls }: FileUploaderProps) {
+export default function FileUploader({
+  files,
+  onFilesChange,
+  collectionSlug,
+  onRemoteFilesChange,
+}: FileUploaderProps) {
+  const [remoteFiles, setRemoteFiles] = useState<string[]>([])
+
+  // -------------------------------
+  // Fetch remote files for collection
+  // -------------------------------
+useEffect(() => {
+  if (!collectionSlug) return
+
+  const fetchFiles = async () => {
+    try {
+      const res = await fetch(`/api/files/${collectionSlug}?list=true`)
+      if (!res.ok) throw new Error("Failed to fetch remote files")
+      const data: { url: string }[] = await res.json()
+
+      const filtered = data.filter(f => {
+        const pathAfterSlug = f.url.split(`/${collectionSlug}/`)[1]
+        return pathAfterSlug && !pathAfterSlug.includes("/")
+      })
+
+      setRemoteFiles(filtered.map(f => f.url))
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  fetchFiles()
+}, [collectionSlug])
+
+
+  // -------------------------------
+  // Dropzone
+  // -------------------------------
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       onFilesChange([...files, ...acceptedFiles])
@@ -25,16 +63,30 @@ export default function FileUploader({ files, onFilesChange, initialFileUrls }: 
     multiple: true,
   })
 
-  // Remove a file by index
-  const removeFile = (index: number) => {
+  // -------------------------------
+  // Remove a local file
+  // -------------------------------
+  const removeLocalFile = (index: number) => {
     const newFiles = [...files]
     newFiles.splice(index, 1)
     onFilesChange(newFiles)
   }
 
+  // -------------------------------
+  // Remove a remote file
+  // -------------------------------
+  const removeRemoteFile = (index: number) => {
+    const newRemoteFiles = [...remoteFiles]
+    newRemoteFiles.splice(index, 1)
+    setRemoteFiles(newRemoteFiles)
+    onRemoteFilesChange?.(newRemoteFiles)
+    // Optionally: call API to delete remote file from MinIO
+  }
+
   return (
     <Card className="w-full max-w-xl mx-auto">
       <CardContent>
+        {/* Dropzone */}
         <div
           {...getRootProps()}
           className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition ${
@@ -53,10 +105,11 @@ export default function FileUploader({ files, onFilesChange, initialFileUrls }: 
           )}
         </div>
 
-        {/* List uploaded files */}
-        {(files.length > 0 || initialFileUrls?.length) && (
+        {/* File lists */}
+        {(files.length > 0 || remoteFiles.length > 0) && (
           <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
-            {[...files].map((file, idx) => (
+            {/* Local files */}
+            {files.map((file, idx) => (
               <div key={file.name + idx} className="flex justify-between items-center">
                 <a
                   href={URL.createObjectURL(file)}
@@ -68,31 +121,32 @@ export default function FileUploader({ files, onFilesChange, initialFileUrls }: 
                 <IconTrash
                   size={16}
                   className="cursor-pointer text-destructive"
-                  onClick={() => removeFile(idx)}
+                  onClick={() => removeLocalFile(idx)}
                 />
               </div>
             ))}
 
-            {/* initial file URLs (read-only, optional) */}
-            {initialFileUrls?.map((url, idx) => (
-              <div key={url + idx} className="flex justify-between items-center">
-                <a href={url} target="_blank" className="text-primary underline break-all">
-                  {url.split("/").pop()}
+            {/* Remote files */}
+            {remoteFiles.map((fileUrl, idx) => (
+              <div key={fileUrl + idx} className="flex justify-between items-center">
+                <a
+                  href={fileUrl}
+                  target="_blank"
+                  className="text-primary underline break-all"
+                >
+                  {fileUrl.split("/").pop()}
                 </a>
                 <IconTrash
                   size={16}
                   className="cursor-pointer text-destructive"
-                  onClick={() => {
-                    // optional: if you want to allow removing initial files
-                    const newInitials = initialFileUrls.filter((_, i) => i !== idx)
-                    // If you lift initialFileUrls to parent, call a setter here
-                  }}
+                  onClick={() => removeRemoteFile(idx)}
                 />
               </div>
             ))}
           </div>
         )}
 
+        {/* Clear all local files */}
         {files.length > 0 && (
           <Button
             className="mt-4"

@@ -43,7 +43,6 @@ export default function CollectionsPage() {
       setEditingCollection(null)
       setOpen(false)
       await refreshCollections()
-
     } catch (err: any) {
       toast.error(err?.message || "Failed to save collection")
     }
@@ -93,11 +92,12 @@ export default function CollectionsPage() {
             <FileUploader
               files={selectedFiles}
               onFilesChange={setSelectedFiles}
-              initialFileUrls={
-                editingCollection?.image
-                  ? [editingCollection.image]
-                  : []
-              }
+              collectionSlug={editingCollection?.slug}
+              onRemoteFilesChange={(urls) => {
+                if (editingCollection) {
+                  editingCollection.image = urls[0]
+                }
+              }}
             />
 
             <CollectionForm
