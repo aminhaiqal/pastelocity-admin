@@ -15,39 +15,35 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { useCollections } from "@/hooks/use-collections"
 import { Collection } from "@/domains/catalog"
+import FileUploader from "@/components/file-uploader"
+import { addOrEditCollection } from "@/domains/catalog/use_cases/collection.usecase"
 
 export default function CollectionsPage() {
   const {
     collections,
     isPending,
-    createCollection,
-    updateCollection,
+    refreshCollections,
     deleteCollection,
   } = useCollections()
 
   const [open, setOpen] = useState(false)
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
-  // Handle create or edit submit
-  const handleAddOrEditCollection = async (values: CollectionFormValues) => {
+  const handleFormSubmit = async (values: CollectionFormValues) => {
     try {
-      const payload = {
-        ...values,
-        is_available: values.isAvailable ?? false,
-      }
+      const result = await addOrEditCollection({
+        values,
+        editingCollection,
+        file: selectedFile,
+      })
 
-      if (editingCollection?.id) {
-        await updateCollection(editingCollection.id, payload)
-        toast.success("Collection updated")
-      } else {
-        await createCollection(payload)
-        toast.success("Collection added")
-      }
-
+      toast.success(result.message)
       setEditingCollection(null)
+      setSelectedFile(null)
       setOpen(false)
+      await refreshCollections()
     } catch (err: any) {
-      console.error(err)
       toast.error(err?.message || "Failed to save collection")
     }
   }
@@ -93,9 +89,15 @@ export default function CollectionsPage() {
               </DialogTitle>
             </DialogHeader>
 
+            <FileUploader
+              file={selectedFile}
+              onFileSelect={setSelectedFile}
+              initialFileUrl={editingCollection?.image || undefined}
+            />
+
             <CollectionForm
               initialData={editingCollection || undefined}
-              onSubmit={handleAddOrEditCollection}
+              onSubmit={handleFormSubmit}
               isSubmitting={isPending}
             />
           </DialogContent>
