@@ -1,0 +1,35 @@
+import { NextResponse } from "next/server"
+
+import { MinioFileRepository } from "@/services/storage/minio.repository"
+import { UploadFileUseCase } from "@/domains/file/file.usecase"
+
+export async function POST(req: Request) {
+  const formData = await req.formData()
+  const file = formData.get("file") as File | null
+
+  if (!file) {
+    return NextResponse.json(
+      { error: "File is required" },
+      { status: 400 }
+    )
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer())
+  const filename = file.name
+
+  const repo = new MinioFileRepository()
+  const useCase = new UploadFileUseCase(repo)
+
+  const result = await useCase.execute(
+    buffer,
+    filename,
+    file.type
+  )
+
+  return NextResponse.json({
+    name: result.name,
+    size: result.size,
+    mimeType: result.mimeType,
+    url: `/api/files/${result.name}`,
+  })
+}
