@@ -1,5 +1,5 @@
 import { DownloadFileUseCase } from "@/domains/file/file.usecase"
-import { MinioFileRepository } from "@/services/storage/minio.repository"
+import { MinioFileRepository } from "@/services/minio.service"
 
 export async function GET(
   _req: Request,

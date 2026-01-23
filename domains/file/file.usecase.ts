@@ -5,17 +5,17 @@ export class UploadFileUseCase {
 
   async execute(
     buffer: Buffer,
-    filename: string,
+    path: string,
     mimeType: string
   ) {
-    return this.repo.upload(buffer, filename, mimeType)
+    return this.repo.upload(buffer, path, mimeType)
   }
 }
 
 export class DownloadFileUseCase {
   constructor(private readonly repo: FileRepository) {}
 
-  async execute(filename: string) {
-    return this.repo.getStream(filename)
+  async execute(path: string) {
+    return this.repo.getStream(path)
   }
 }

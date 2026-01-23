@@ -2,10 +2,12 @@ import { FileObject } from "./file.entity"
 
 export interface FileRepository {
   upload(
-    file: Buffer,
-    filename: string,
+    buffer: Buffer,
+    path: string,
     mimeType: string
   ): Promise<FileObject>
 
-  getStream(name: string): Promise<NodeJS.ReadableStream>
+  getStream(path: string): Promise<NodeJS.ReadableStream>
+
+  list(prefix?: string): Promise<FileObject[]>
 }
