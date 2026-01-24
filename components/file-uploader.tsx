@@ -1,10 +1,9 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
-import { useDropzone } from "react-dropzone"
+import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { IconTrash } from "@tabler/icons-react"
+import { Trash2 } from "lucide-react"
 
 interface FileUploaderProps {
   files: File[]
@@ -22,6 +21,7 @@ export default function FileUploader({
   onRemoteFileDelete,
 }: FileUploaderProps) {
   const [remoteFiles, setRemoteFiles] = useState<string[]>([])
+  const [isDragActive, setIsDragActive] = useState(false)
 
   // -------------------------------
   // Helpers
@@ -61,17 +61,42 @@ export default function FileUploader({
   }, [collectionSlug])
 
   // -------------------------------
-  // Dropzone
+  // Manual Drag & Drop handlers
   // -------------------------------
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => onFilesChange([...files, ...acceptedFiles]),
-    [files, onFilesChange]
-  )
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragActive(true)
+  }
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: true,
-  })
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragActive(false)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragActive(false)
+
+    const droppedFiles = Array.from(e.dataTransfer.files)
+    if (droppedFiles.length > 0) {
+      onFilesChange([...files, ...droppedFiles])
+    }
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files
+    if (selectedFiles && selectedFiles.length > 0) {
+      onFilesChange([...files, ...Array.from(selectedFiles)])
+    }
+  }
 
   // -------------------------------
   // Remove handlers
@@ -119,13 +144,13 @@ export default function FileUploader({
         const url = isRemote ? (file as string) : URL.createObjectURL(file as File)
         const name = isRemote ? getFileName(file as string) : (file as File).name
         return (
-          <div key={name + idx} className="flex justify-between items-center">
-            <a href={url} target="_blank" className="text-primary underline break-all">
+          <div key={name + idx} className="flex justify-between items-center gap-2">
+            <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline break-all flex-1">
               {name}
             </a>
-            <IconTrash
+            <Trash2
               size={16}
-              className="cursor-pointer text-destructive"
+              className="cursor-pointer text-red-600 hover:text-red-700 flex-shrink-0"
               onClick={() => onRemove(idx)}
             />
           </div>
@@ -134,23 +159,30 @@ export default function FileUploader({
     </>
   )
 
-  const DropzoneArea = () => (
-    <div
-      {...getRootProps()}
-      className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition ${isDragActive ? "border-primary bg-primary/10" : "border-muted hover:border-primary"
-        }`}
-    >
-      <input {...getInputProps()} />
-      <p className={isDragActive ? "text-primary font-medium" : "text-muted-foreground"}>
-        {isDragActive ? "Drop files here..." : "Drag & drop files here, or click to select"}
-      </p>
-    </div>
-  )
-
   return (
     <Card className="w-full max-w-xl mx-auto">
-      <CardContent>
-        <DropzoneArea />
+      <CardContent className="pt-6">
+        <div
+          onDragEnter={handleDragEnter}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => document.getElementById('file-input')?.click()}
+          className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition ${
+            isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-blue-400"
+          }`}
+        >
+          <input
+            id="file-input"
+            type="file"
+            multiple
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <p className={isDragActive ? "text-blue-600 font-medium" : "text-gray-600"}>
+            {isDragActive ? "Drop files here..." : "Drag & drop files here, or click to select"}
+          </p>
+        </div>
 
         {(files.length > 0 || remoteFiles.length > 0) && (
           <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">

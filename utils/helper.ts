@@ -1,11 +1,11 @@
-const toSlug = (v: string) =>
+export const toSlug = (v: string) =>
   v
     .toLowerCase()
     .trim()
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-_]/g, "")
 
-const sanitizeText = (name: string) =>
+export const sanitizeText = (name: string) =>
   name
     .toLowerCase()
     .trim()
