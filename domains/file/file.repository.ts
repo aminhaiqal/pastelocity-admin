@@ -10,4 +10,5 @@ export interface FileRepository {
   getStream(path: string): Promise<NodeJS.ReadableStream>
 
   list(prefix?: string): Promise<FileObject[]>
+  delete(path: string): Promise<void>
 }

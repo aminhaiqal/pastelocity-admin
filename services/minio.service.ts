@@ -51,4 +51,7 @@ export class MinioFileRepository implements FileRepository {
     return files
   }
   
+  async delete(path: string): Promise<void> {
+    await minioClient.removeObject(MINIO_BUCKET, path)
+  }
 }

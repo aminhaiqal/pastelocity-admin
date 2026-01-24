@@ -98,6 +98,13 @@ export default function CollectionsPage() {
                   editingCollection.image = urls[0]
                 }
               }}
+              onRemoteFileDelete={async (path) => {
+                await fetch(`/api/files/${editingCollection?.slug}`, {
+                  method: "DELETE",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ path }),
+                })
+              }}
             />
 
             <CollectionForm

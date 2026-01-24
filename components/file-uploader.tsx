@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button"
 import { IconTrash } from "@tabler/icons-react"
 
 interface FileUploaderProps {
-  files: File[] 
+  files: File[]
   onFilesChange: (files: File[]) => void
   collectionSlug?: string
   onRemoteFilesChange?: (urls: string[]) => void
+  onRemoteFileDelete?: (path: string) => Promise<void>
 }
 
 export default function FileUploader({
@@ -18,6 +19,7 @@ export default function FileUploader({
   onFilesChange,
   collectionSlug,
   onRemoteFilesChange,
+  onRemoteFileDelete,
 }: FileUploaderProps) {
   const [remoteFiles, setRemoteFiles] = useState<string[]>([])
 
@@ -31,6 +33,11 @@ export default function FileUploader({
       const pathAfterSlug = f.url.split(`/${collectionSlug}/`)[1]
       return pathAfterSlug && !pathAfterSlug.includes("/")
     })
+
+  const extractPathFromUrl = (url: string) => {
+    const idx = url.indexOf(`/${collectionSlug}/`)
+    return idx === -1 ? url : url.slice(idx + 1)
+  }
 
   // -------------------------------
   // Fetch remote files
@@ -75,11 +82,24 @@ export default function FileUploader({
     onFilesChange(updated)
   }
 
-  const removeRemoteFile = (index: number) => {
-    const updated = [...remoteFiles]
-    updated.splice(index, 1)
-    setRemoteFiles(updated)
-    onRemoteFilesChange?.(updated)
+  const removeRemoteFile = async (index: number) => {
+    const url = remoteFiles[index]
+    if (!url) return
+
+    const path = extractPathFromUrl(url)
+
+    try {
+      if (onRemoteFileDelete) {
+        await onRemoteFileDelete(path)
+      }
+
+      const updated = remoteFiles.filter((_, i) => i !== index)
+      setRemoteFiles(updated)
+      onRemoteFilesChange?.(updated)
+    } catch (err) {
+      console.error("Failed to delete remote file", err)
+      alert("Failed to delete file. Please try again.")
+    }
   }
 
   // -------------------------------
@@ -117,9 +137,8 @@ export default function FileUploader({
   const DropzoneArea = () => (
     <div
       {...getRootProps()}
-      className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition ${
-        isDragActive ? "border-primary bg-primary/10" : "border-muted hover:border-primary"
-      }`}
+      className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition ${isDragActive ? "border-primary bg-primary/10" : "border-muted hover:border-primary"
+        }`}
     >
       <input {...getInputProps()} />
       <p className={isDragActive ? "text-primary font-medium" : "text-muted-foreground"}>

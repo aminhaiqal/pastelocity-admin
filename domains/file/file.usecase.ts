@@ -27,3 +27,11 @@ export class ListCollectionFilesUseCase {
     return this.repo.list(`${collectionSlug}/`)
   }
 }
+
+export class DeleteFileUseCase {
+  constructor(private readonly repo: FileRepository) {}
+
+  async execute(path: string): Promise<void> {
+    await this.repo.delete(path)
+  }
+}

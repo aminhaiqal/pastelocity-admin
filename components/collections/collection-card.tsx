@@ -19,7 +19,7 @@ export default function CollectionCard({ collection, onEdit, onDelete }: Props) 
       {collection.image ? (
         <div className="relative w-full h-48 overflow-hidden">
           <Image
-            src={`${collection.image}`}
+            src={`https://storage.pastelocity.com.my/public/${collection.slug}/collection.png`}
             alt={collection.name}
             fill
             className="object-cover"
@@ -39,7 +39,7 @@ export default function CollectionCard({ collection, onEdit, onDelete }: Props) 
           {collection.description || "No description"}
         </p>
         <p className="text-sm font-medium text-gray-700">
-          {collection.isAvailable ? "Available" : "Not Available"}
+          {collection.is_available ? "Available" : "Not Available"}
         </p>
 
         <div className="mt-3 flex gap-2">
