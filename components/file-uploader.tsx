@@ -22,6 +22,7 @@ export default function FileUploader({
 }: FileUploaderProps) {
   const [remoteFiles, setRemoteFiles] = useState<string[]>([])
   const [isDragActive, setIsDragActive] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   // -------------------------------
   // Helpers
@@ -46,14 +47,18 @@ export default function FileUploader({
     if (!collectionSlug) return
 
     const fetchFiles = async () => {
+      setIsLoading(true)
       try {
         const res = await fetch(`/api/files/${collectionSlug}?list=true`)
         if (!res.ok) throw new Error("Failed to fetch remote files")
+
         const data: { url: string }[] = await res.json()
         const topLevel = filterTopLevelFiles(data)
         setRemoteFiles(topLevel.map(f => f.url))
       } catch (err) {
         console.error(err)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -109,11 +114,13 @@ export default function FileUploader({
 
   const removeRemoteFile = async (index: number) => {
     const url = remoteFiles[index]
-    if (!url) return
+    if (!url || isLoading) return
 
     const path = extractPathFromUrl(url)
 
     try {
+      setIsLoading(true)
+
       if (onRemoteFileDelete) {
         await onRemoteFileDelete(path)
       }
@@ -124,6 +131,8 @@ export default function FileUploader({
     } catch (err) {
       console.error("Failed to delete remote file", err)
       alert("Failed to delete file. Please try again.")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -161,16 +170,16 @@ export default function FileUploader({
 
   return (
     <Card className="w-full max-w-xl mx-auto">
-      <CardContent className="pt-6">
+      <CardContent>
         <div
           onDragEnter={handleDragEnter}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => document.getElementById('file-input')?.click()}
-          className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition ${
-            isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-blue-400"
-          }`}
+          onClick={!isLoading ? () => document.getElementById("file-input")?.click() : undefined}
+          className={`border-2 border-dashed rounded-md p-6 text-center transition ${isLoading ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+            } ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-blue-400"
+            }`}
         >
           <input
             id="file-input"
