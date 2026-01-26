@@ -6,6 +6,7 @@ import Dropzone from "./dropzone"
 import FileList from "./file-list"
 import FileActions from "./file-actions"
 import { filterTopLevelFiles, extractPathFromUrl, sanitizeFileName } from "./utils"
+import { sanitizeText } from "@/utils/helper"
 
 interface FileUploaderProps {
   collectionSlug?: string
@@ -44,7 +45,11 @@ export default function FileUploader({ collectionSlug, onFileUploaded }: FileUpl
     try {
       setIsLoading(true)
       const formData = new FormData()
-      localFiles.forEach(file => formData.append("file", file))
+      localFiles.forEach(file => {
+      const safeName = sanitizeText(file.name)
+      formData.append("file", file)
+      formData.append("path", `${collectionSlug}/${safeName}`)
+    })
       const res = await fetch("/api/files/upload", { method: "POST", body: formData })
       if (!res.ok) throw new Error("Upload failed")
       const uploaded = await res.json()
