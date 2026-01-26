@@ -74,7 +74,14 @@ export default function CollectionsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Collections</h1>
 
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(isOpen) => {
+          setOpen(isOpen)
+
+          if (!isOpen) {
+            setEditingCollection(null)
+            setSelectedFiles([])
+          }
+        }}>
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2">
               <IconPlus size={16} />
