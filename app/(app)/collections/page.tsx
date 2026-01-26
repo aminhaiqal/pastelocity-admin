@@ -15,8 +15,8 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { useCollections } from "@/hooks/use-collections"
 import { Collection } from "@/domains/catalog"
-import FileUploader from "@/components/file-uploader"
 import { addOrEditCollection } from "@/domains/catalog/use_cases/collection.usecase"
+import FileUploader from "@/components/FileUploader/file-uploader"
 
 export default function CollectionsPage() {
   const {

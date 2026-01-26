@@ -46,7 +46,6 @@ export function CollectionForm({ initialData, onSubmit, isSubmitting }: Collecti
   })
 
   const handleSubmit: SubmitHandler<CollectionFormValues> = (data) => {
-    // Prepend the public bucket URL if filename exists
     if (data.image_url) {
       data.image_url = `https://storage.pastelocity.com.my/public/${data.image_url}`
     }
