@@ -17,11 +17,9 @@ import { useProducts } from "@/hooks/use-products"
 import { Product } from "@/domains/catalog"
 import { toast } from "sonner"
 import { productToFormValues } from "@/utils/mapper"
-import { useCollections } from "@/hooks/use-collections"
 
 export default function ProductsPage() {
   const { products, createProduct, updateProduct, deleteProduct, isPending } = useProducts()
-  const { collections, refreshCollections, isPending: collectionPending } = useCollections()
   const [open, setOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
@@ -44,17 +42,12 @@ export default function ProductsPage() {
     }
   }
 
-  // Handle collection assignment
-  const handleCollectionAssignment = async () => {
-    
-  }
-
   // Edit button clicked on card
   const handleEdit = (id: number) => {
     const product = products.find((p) => p.id === id)
     if (!product) return
     setEditingProduct(product)
-    setOpen(true) // open the dialog with pre-filled ProductForm
+    setOpen(true)
   }
 
   // Delete button clicked on card
@@ -86,7 +79,10 @@ export default function ProductsPage() {
           )}
 
           {/* New / Edit Product Dialog */}
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={open} onOpenChange={(value) => {
+            setOpen(value)
+            if (!value) setEditingProduct(null)
+          }}>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2">
                 <IconPlus size={16} />
@@ -103,10 +99,6 @@ export default function ProductsPage() {
                 initialData={editingProduct ? productToFormValues(editingProduct) : undefined}
                 onSubmit={handleAddOrEditProduct}
                 isSubmitting={isPending}
-
-                collections={collections}
-                isCollectionRefreshing={collectionPending}
-                onCollectionRefresh={refreshCollections}
               />
             </DialogContent>
           </Dialog>

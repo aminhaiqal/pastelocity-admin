@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   Collection,
   CreateCollection,
@@ -13,54 +13,56 @@ import {
   deleteCollectionAction,
 } from "@/actions/collections"
 
+// Hook to manage collections
 export function useCollections() {
-  const [collections, setCollections] = useState<Collection[]>([])
-  const [isPending, startTransition] = useTransition()
+  const queryClient = useQueryClient()
 
-  function refreshCollections() {
-    startTransition(async () => {
-      const data = await listCollectionsAction()
-      setCollections(data)
-    })
-  }
+  // -----------------------------
+  // Query: list collections
+  // -----------------------------
+  const { data: collections = [], isLoading, isFetching } = useQuery<Collection[]>({
+    queryKey: ["collections"],
+    queryFn: listCollectionsAction,
+    staleTime: 1000 * 60 * 5, // 5 minutes cache
+  })
 
-  // Load collections on mount
-  useEffect(() => {
-    refreshCollections()
-  }, [])
+  // -----------------------------
+  // Mutations: create/update/delete
+  // -----------------------------
+  const createCollection = useMutation({
+    mutationFn: (input: CreateCollection) => createCollectionAction(input),
+    onSuccess: (newCollection) => {
+      // Update cached collections
+      queryClient.setQueryData<Collection[]>(["collections"], (old = []) => [...old, newCollection])
+    },
+  })
 
-  // Create collection
-  function createCollection(input: CreateCollection) {
-    startTransition(async () => {
-      const created = await createCollectionAction(input)
-      setCollections((prev) => [...prev, created])
-    })
-  }
-
-  // Update collection
-  function updateCollection(id: number, input: Omit<UpdateCollection, "id">) {
-    startTransition(async () => {
-      const updated = await updateCollectionAction({ id, ...input })
-      setCollections((prev) =>
-        prev.map((c) => (c.id === id ? updated : c))
+  const updateCollection = useMutation({
+    mutationFn: ({ id, input }: { id: number; input: Omit<UpdateCollection, "id"> }) =>
+      updateCollectionAction({ id, ...input }),
+    onSuccess: (updatedCollection) => {
+      queryClient.setQueryData<Collection[]>(["collections"], (old = []) =>
+        old.map((c) => (c.id === updatedCollection.id ? updatedCollection : c))
       )
-    })
-  }
+    },
+  })
 
-  // Delete collection
-  function deleteCollection(id: number) {
-    startTransition(async () => {
-      await deleteCollectionAction(id)
-      setCollections((prev) => prev.filter((c) => c.id !== id))
-    })
-  }
+  const deleteCollection = useMutation({
+    mutationFn: (id: number) => deleteCollectionAction(id),
+    onSuccess: (_, id) => {
+      queryClient.setQueryData<Collection[]>(["collections"], (old = []) =>
+        old.filter((c) => c.id !== id)
+      )
+    },
+  })
 
   return {
     collections,
-    isPending,
-    refreshCollections,
+    isLoading,
+    isFetching,
     createCollection,
     updateCollection,
     deleteCollection,
+    refetch: () => queryClient.invalidateQueries({ queryKey: ["collections"] })
   }
 }

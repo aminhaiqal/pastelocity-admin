@@ -11,3 +11,8 @@ export const sanitizeText = (name: string) =>
     .trim()
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9.-]/g, "")
+
+export const splitCollectionProduct = (input: string) => {
+  const [collection, product] = input.split(" - ").map(part => part.trim().toLowerCase());
+  return { collection, product };
+}

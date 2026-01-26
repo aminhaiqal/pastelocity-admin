@@ -18,10 +18,11 @@ import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import React from "react"
 import { cutting_type } from "@/enums"
-import { Collection } from "@/domains/catalog"
+import { useCollections } from "@/hooks/use-collections"
 
 // Validation schema
 const productSchema = z.object({
+  collection_id: z.number({ message: "Collection is required" }),
   name: z.string().min(1, { message: "Name is required" }),
   description: z.string().min(1, { message: "Name is required" }),
   color: z.string().optional(),
@@ -41,13 +42,11 @@ type ProductFormProps = {
   initialData?: Partial<ProductFormValues>
   onSubmit: (values: ProductFormValues) => void | Promise<void>
   isSubmitting?: boolean
-
-  collections: Collection[]
-  isCollectionRefreshing?: boolean
-  onCollectionRefresh: () => void
 }
 
-export function ProductForm({ initialData, onSubmit, isSubmitting = false, collections, isCollectionRefreshing = false, onCollectionRefresh }: ProductFormProps) {
+export function ProductForm({ initialData, onSubmit, isSubmitting = false }: ProductFormProps) {
+  const { collections, isLoading: collectionsLoading } = useCollections()
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: initialData || {
@@ -89,21 +88,30 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false, colle
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
 
-        {/* Image URL */}
+        {/* Collection */}
         <FormField
           control={form.control}
-          name="image_url"
+          name="collection_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Image Filename</FormLabel>
+              <FormLabel>Collection</FormLabel>
               <FormControl>
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-500">https://storage.pastelocity.com.my/public/</span>
-                  <Input
-                    placeholder="my-image.jpg"
-                    {...field}
-                  />
-                </div>
+                <Select
+                  value={field.value?.toString() || ""}
+                  onValueChange={(val) => field.onChange(parseInt(val))}
+                  disabled={collectionsLoading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={collectionsLoading ? "Loading..." : "Select collection"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {collections.map((c) => (
+                      <SelectItem key={c.id} value={c.id.toString()}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormControl>
               <FormMessage />
             </FormItem>

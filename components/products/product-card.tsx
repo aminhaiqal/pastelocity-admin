@@ -2,6 +2,7 @@
 
 import { Product } from "@/domains/catalog"
 import { Button } from "@/components/ui/button"
+import { splitCollectionProduct } from "@/utils/helper"
 
 type Props = {
   product: Product
@@ -12,6 +13,8 @@ type Props = {
 }
 
 export default function ProductCard({ product, isSelected, onSelect, onEdit, onDelete }: Props) {
+  const { collection: c, product: p } = splitCollectionProduct(product.name);
+
   return (
     <div
       onClick={() => onSelect(product.id)}
@@ -22,7 +25,7 @@ export default function ProductCard({ product, isSelected, onSelect, onEdit, onD
       {product.image_url ? (
         <div className="w-full h-48 overflow-hidden">
           <img
-            src={product.image_url}
+            src={`https://storage.pastelocity.com.my/public/${c}/${p}/${p}.png`}
             alt={product.name}
             className="w-full h-full object-cover"
           />

@@ -1,7 +1,6 @@
 import { CollectionFormValues } from "@/components/collections/collection-form"
 import { collectionService } from "@/services/collection.service"
 import { Collection, CreateCollection, UpdateCollection } from "@/domains/catalog"
-import { sanitizeText, toSlug } from "@/utils/helper"
 
 export interface AddOrEditCollectionParams {
   values: CollectionFormValues
