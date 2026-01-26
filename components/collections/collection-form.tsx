@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Textarea } from "../ui/textarea"
 
 const collectionSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -78,25 +79,11 @@ export function CollectionForm({ initialData, onSubmit, isSubmitting }: Collecti
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Input placeholder="A short description" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Image Filename */}
-        <FormField
-          control={form.control}
-          name="image_url"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Collection Image Filename</FormLabel>
-              <FormControl>
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-500">https://storage.pastelocity.com.my/public/</span>
-                  <Input placeholder="my-image.jpg" {...field} />
-                </div>
+                <Textarea
+                  placeholder="A short description"
+                  {...field}
+                  rows={4}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -112,6 +99,7 @@ export function CollectionForm({ initialData, onSubmit, isSubmitting }: Collecti
               <FormControl>
                 <Checkbox
                   checked={field.value}
+                  disabled
                   onCheckedChange={(checked) => field.onChange(checked)}
                 />
               </FormControl>
@@ -120,7 +108,7 @@ export function CollectionForm({ initialData, onSubmit, isSubmitting }: Collecti
           )}
         />
 
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting} className="mt-6">
           {isSubmitting ? "Saving..." : "Save Collection"}
         </Button>
       </form>

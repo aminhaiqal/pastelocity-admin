@@ -35,7 +35,6 @@ export default function CollectionsPage() {
       const result = await addOrEditCollection({
         values,
         editingCollection,
-        files: selectedFiles,
       })
 
       toast.success(result.message)
@@ -96,23 +95,12 @@ export default function CollectionsPage() {
               </DialogTitle>
             </DialogHeader>
 
-            <FileUploader
-              files={selectedFiles}
-              onFilesChange={setSelectedFiles}
-              collectionSlug={editingCollection?.slug}
-              onRemoteFilesChange={(urls) => {
-                if (editingCollection) {
-                  editingCollection.image = urls[0]
-                }
-              }}
-              onRemoteFileDelete={async (path) => {
-                await fetch(`/api/files/${editingCollection?.slug}`, {
-                  method: "DELETE",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ path }),
-                })
-              }}
-            />
+            {editingCollection && (
+              <FileUploader
+                collectionSlug={editingCollection.slug}
+                onFileUploaded={url => { editingCollection.image = url }}
+              />
+            )}
 
             <CollectionForm
               initialData={editingCollection || undefined}

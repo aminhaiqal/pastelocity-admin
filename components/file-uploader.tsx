@@ -3,23 +3,17 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Trash2 } from "lucide-react"
+import { Trash2, Upload } from "lucide-react"
+import { sanitizeText } from "@/utils/helper"
 
 interface FileUploaderProps {
-  files: File[]
-  onFilesChange: (files: File[]) => void
   collectionSlug?: string
-  onRemoteFilesChange?: (urls: string[]) => void
-  onRemoteFileDelete?: (path: string) => Promise<void>
+  onFileUploaded?: (url: string) => void
 }
 
-export default function FileUploader({
-  files,
-  onFilesChange,
-  collectionSlug,
-  onRemoteFilesChange,
-  onRemoteFileDelete,
-}: FileUploaderProps) {
+
+export default function FileUploader({ collectionSlug, onFileUploaded }: FileUploaderProps) {
+  const [localFiles, setLocalFiles] = useState<File[]>([])
   const [remoteFiles, setRemoteFiles] = useState<string[]>([])
   const [isDragActive, setIsDragActive] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -27,7 +21,10 @@ export default function FileUploader({
   // -------------------------------
   // Helpers
   // -------------------------------
-  const getFileName = (url: string) => url.split("/").pop() || url
+const getFileName = (fileOrUrl: string | File) => {
+  if (typeof fileOrUrl === "string") return fileOrUrl.split("/").pop() || fileOrUrl
+  return fileOrUrl.name
+}
 
   const filterTopLevelFiles = (data: { url: string }[]) =>
     data.filter(f => {
@@ -66,40 +63,54 @@ export default function FileUploader({
   }, [collectionSlug])
 
   // -------------------------------
-  // Manual Drag & Drop handlers
+  // Upload handler
   // -------------------------------
-  const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragActive(true)
-  }
+const handleUpload = async () => {
+  if (!localFiles.length || !collectionSlug) return
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragActive(false)
-  }
+  try {
+    setIsLoading(true)
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
+    const formData = new FormData()
+    localFiles.forEach(file => {
+      const safeName = sanitizeText(file.name)
+      formData.append("file", file)
+      formData.append("path", `${collectionSlug}/${safeName}`)
+    })
 
+    const res = await fetch("/api/files/upload", { method: "POST", body: formData })
+    if (!res.ok) throw new Error("Upload failed")
+
+    // Normalize response as an array
+    const uploaded = await res.json()
+    const uploadedUrls = Array.isArray(uploaded) ? uploaded : [uploaded]
+
+    // Add uploaded files to remoteFiles state
+    setRemoteFiles(prev => [...prev, ...uploadedUrls])
+    setLocalFiles([])
+
+    // Call callback with first uploaded file
+    if (onFileUploaded && uploadedUrls.length) {
+      onFileUploaded(uploadedUrls[0])
+    }
+  } catch (err) {
+    console.error(err)
+    alert("Failed to upload files")
+  } finally {
+    setIsLoading(false)
+  }
+}
+
+  // -------------------------------
+  // Drag & Drop handlers
+  // -------------------------------
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
-    e.stopPropagation()
     setIsDragActive(false)
 
     const droppedFiles = Array.from(e.dataTransfer.files)
     if (droppedFiles.length > 0) {
-      onFilesChange([...files, ...droppedFiles])
-    }
-  }
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files
-    if (selectedFiles && selectedFiles.length > 0) {
-      onFilesChange([...files, ...Array.from(selectedFiles)])
+      setLocalFiles(prev => [...prev, ...droppedFiles])
     }
   }
 
@@ -107,105 +118,124 @@ export default function FileUploader({
   // Remove handlers
   // -------------------------------
   const removeLocalFile = (index: number) => {
-    const updated = [...files]
-    updated.splice(index, 1)
-    onFilesChange(updated)
+    setLocalFiles(prev => prev.filter((_, i) => i !== index))
   }
-
   const removeRemoteFile = async (index: number) => {
     const url = remoteFiles[index]
-    if (!url || isLoading) return
+    if (!url || isLoading || !collectionSlug) return
 
     const path = extractPathFromUrl(url)
 
     try {
       setIsLoading(true)
 
-      if (onRemoteFileDelete) {
-        await onRemoteFileDelete(path)
-      }
+      const res = await fetch(`/api/files/${collectionSlug}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path }),
+      })
+
+      if (!res.ok) throw new Error("Failed to delete remote file")
 
       const updated = remoteFiles.filter((_, i) => i !== index)
       setRemoteFiles(updated)
-      onRemoteFilesChange?.(updated)
     } catch (err) {
-      console.error("Failed to delete remote file", err)
-      alert("Failed to delete file. Please try again.")
+      console.error(err)
+      alert("Failed to delete file")
     } finally {
       setIsLoading(false)
     }
   }
 
-  // -------------------------------
-  // Subcomponents
-  // -------------------------------
-  const FileList = ({
-    files,
-    onRemove,
-    isRemote = false,
-  }: {
-    files: (File | string)[]
-    onRemove: (index: number) => void
-    isRemote?: boolean
-  }) => (
-    <>
-      {files.map((file, idx) => {
-        const url = isRemote ? (file as string) : URL.createObjectURL(file as File)
-        const name = isRemote ? getFileName(file as string) : (file as File).name
-        return (
-          <div key={name + idx} className="flex justify-between items-center gap-2">
-            <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline break-all flex-1">
-              {name}
-            </a>
-            <Trash2
-              size={16}
-              className="cursor-pointer text-red-600 hover:text-red-700 flex-shrink-0"
-              onClick={() => onRemove(idx)}
-            />
-          </div>
-        )
-      })}
-    </>
-  )
-
   return (
     <Card className="w-full max-w-xl mx-auto">
-      <CardContent>
+      <CardContent className="space-y-4">
+        {/* Dropzone */}
         <div
-          onDragEnter={handleDragEnter}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
+          onDragEnter={e => { e.preventDefault(); setIsDragActive(true) }}
+          onDragOver={e => e.preventDefault()}
+          onDragLeave={e => { e.preventDefault(); setIsDragActive(false) }}
           onDrop={handleDrop}
           onClick={!isLoading ? () => document.getElementById("file-input")?.click() : undefined}
-          className={`border-2 border-dashed rounded-md p-6 text-center transition ${isLoading ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
-            } ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-blue-400"
-            }`}
+          className={`border-2 border-dashed rounded-md p-6 text-center transition
+          ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"}
+          ${isLoading ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}
+        `}
         >
           <input
             id="file-input"
             type="file"
             multiple
-            onChange={handleFileSelect}
-            className="hidden"
+            hidden
+            onChange={e => {
+              const selectedFiles = e.target.files
+              if (!selectedFiles) return
+              setLocalFiles(prev => [...prev, ...Array.from(selectedFiles)])
+            }}
           />
-          <p className={isDragActive ? "text-blue-600 font-medium" : "text-gray-600"}>
-            {isDragActive ? "Drop files here..." : "Drag & drop files here, or click to select"}
-          </p>
+          Drag & drop files here, or click to select
         </div>
 
-        {(files.length > 0 || remoteFiles.length > 0) && (
-          <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
-            <FileList files={files} onRemove={removeLocalFile} />
-            <FileList files={remoteFiles} onRemove={removeRemoteFile} isRemote />
+        {/* Files */}
+        {localFiles.length > 0 && (
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {localFiles.map((file, i) => (
+              <div key={i} className="flex justify-between items-center">
+                <span className="break-all">{file.name}</span>
+                <Trash2
+                  className="cursor-pointer text-red-600 hover:text-red-700"
+                  onClick={() => removeLocalFile(i)}
+                />
+              </div>
+            ))}
           </div>
         )}
 
-        {files.length > 0 && (
-          <Button className="mt-4" variant="outline" onClick={() => onFilesChange([])}>
-            Clear All Files
-          </Button>
+        {remoteFiles.length > 0 && (
+          <div className="space-y-2 max-h-60 overflow-y-auto mt-2">
+            {remoteFiles.map((url, i) => (
+              <div key={i} className="flex justify-between items-center">
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline break-all"
+                >
+                  {getFileName(url)}
+                </a>
+                <Trash2
+                  size={20}
+                  className="cursor-pointer text-red-600 hover:text-red-700"
+                  onClick={() => removeRemoteFile(i)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Actions */}
+        {localFiles.length > 0 && (
+          <div className="flex gap-2 mt-2">
+            <Button
+              variant="outline"
+              onClick={() => setLocalFiles([])}
+              disabled={isLoading}
+            >
+              Clear
+            </Button>
+
+            <Button
+              onClick={handleUpload}
+              disabled={isLoading || !collectionSlug}
+              className="flex gap-2"
+            >
+              <Upload size={16} />
+              Upload
+            </Button>
+          </div>
         )}
       </CardContent>
     </Card>
   )
+
 }
