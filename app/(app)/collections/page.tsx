@@ -21,14 +21,12 @@ import FileUploader from "@/components/FileUploader/file-uploader"
 export default function CollectionsPage() {
   const {
     collections,
-    isPending,
-    refreshCollections,
+    isLoading,
     deleteCollection,
   } = useCollections()
 
   const [open, setOpen] = useState(false)
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null)
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
 
   const handleFormSubmit = async (values: CollectionFormValues) => {
     try {
@@ -38,10 +36,8 @@ export default function CollectionsPage() {
       })
 
       toast.success(result.message)
-      setSelectedFiles([])
       setEditingCollection(null)
       setOpen(false)
-      await refreshCollections()
     } catch (err: any) {
       toast.error(err?.message || "Failed to save collection")
     }
@@ -59,7 +55,7 @@ export default function CollectionsPage() {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this collection?")) return
     try {
-      await deleteCollection(id)
+      await deleteCollection.mutateAsync(id)
       toast.success("Collection deleted")
     } catch (err: any) {
       console.error(err)
@@ -78,7 +74,6 @@ export default function CollectionsPage() {
 
           if (!isOpen) {
             setEditingCollection(null)
-            setSelectedFiles([])
           }
         }}>
           <DialogTrigger asChild>
@@ -105,7 +100,7 @@ export default function CollectionsPage() {
             <CollectionForm
               initialData={editingCollection || undefined}
               onSubmit={handleFormSubmit}
-              isSubmitting={isPending}
+              isSubmitting={isLoading}
             />
           </DialogContent>
         </Dialog>
