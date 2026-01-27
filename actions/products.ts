@@ -22,3 +22,13 @@ export async function updateProductAction(input: UpdateProduct) {
 export async function deleteProductAction(id: number) {
   return productService.deleteProduct(id)
 }
+
+// ADD INTO COLLECTION
+export async function addProductIntoCollectionAction(product_id: number, collection_id: number) {
+  return productService.addProductIntoCollection(product_id, collection_id)
+}
+
+// REMOVE FROM COLLECTION
+export async function removeProductFromCollectionAction(product_id: number) {
+  return productService.removeProductFromCollection(product_id)
+}

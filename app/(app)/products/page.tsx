@@ -17,27 +17,27 @@ import { useProducts } from "@/hooks/use-products"
 import { Product } from "@/domains/catalog"
 import { toast } from "sonner"
 import { productToFormValues } from "@/utils/mapper"
+import FileUploader from "@/components/FileUploader/file-uploader"
+import { useAddOrEditProduct } from "@/domains/catalog/use_cases/product.usecase"
 
 export default function ProductsPage() {
-  const { products, createProduct, updateProduct, deleteProduct, isPending } = useProducts()
+  const { addOrEditProduct } = useAddOrEditProduct()
+  const { products, deleteProduct, isPending } = useProducts()
   const [open, setOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
 
-  // Handle form submission for create or edit
-  const handleAddOrEditProduct = async (values: ProductFormValues) => {
+  const handleFormSubmit = async (values: ProductFormValues) => {
     try {
-      if (editingProduct) {
-        await updateProduct(editingProduct.id, values)
-        toast.success("Product updated")
-        setEditingProduct(null)
-      } else {
-        await createProduct(values)
-        toast.success("Product added")
-      }
+      const result = await addOrEditProduct({
+        values,
+        editingProduct,
+      })
+
+      toast.success(result.message)
+      setEditingProduct(null)
       setOpen(false)
     } catch (err: any) {
-      console.error(err)
       toast.error(err?.message || "Failed to save product")
     }
   }
@@ -95,9 +95,15 @@ export default function ProductsPage() {
                 <DialogTitle>{editingProduct ? "Edit Product" : "New Product"}</DialogTitle>
               </DialogHeader>
 
+              {editingProduct && (
+                <FileUploader
+                  collectionSlug={editingProduct.name}
+                />
+              )}
+
               <ProductForm
                 initialData={editingProduct ? productToFormValues(editingProduct) : undefined}
-                onSubmit={handleAddOrEditProduct}
+                onSubmit={handleFormSubmit}
                 isSubmitting={isPending}
               />
             </DialogContent>

@@ -10,10 +10,9 @@ import { sanitizeText } from "@/utils/helper"
 
 interface FileUploaderProps {
   collectionSlug?: string
-  onFileUploaded?: (url: string) => void
 }
 
-export default function FileUploader({ collectionSlug, onFileUploaded }: FileUploaderProps) {
+export default function FileUploader({ collectionSlug }: FileUploaderProps) {
   const [localFiles, setLocalFiles] = useState<File[]>([])
   const [remoteFiles, setRemoteFiles] = useState<string[]>([])
   const [isDragActive, setIsDragActive] = useState(false)
@@ -56,7 +55,6 @@ export default function FileUploader({ collectionSlug, onFileUploaded }: FileUpl
       const uploadedUrls = Array.isArray(uploaded) ? uploaded : [uploaded]
       setRemoteFiles(prev => [...prev, ...uploadedUrls])
       setLocalFiles([])
-      if (onFileUploaded && uploadedUrls.length) onFileUploaded(uploadedUrls[0])
     } catch (err) {
       console.error(err)
       alert("Failed to upload files")

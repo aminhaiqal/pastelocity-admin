@@ -2,6 +2,8 @@ import {
   createProduct as dbCreateProduct,
   updateProduct as dbUpdateProduct,
   deleteProduct as dbDeleteProduct,
+  addProductIntoCollection as dbAddProductIntoCollection,
+  removeProductFromCollection as dbRemoveProductFromCollection,
   getProduct as dbGetProduct,
   listProducts as dbListProducts,
   collection_id,
@@ -9,7 +11,6 @@ import {
 import { Product, CreateProduct, UpdateProduct } from "@/domains/catalog"
 import { handleProductCollection } from "./helpers/product-collection.helper"
 
-const STRATEGY = process.env.PRODUCT_SEED_STRATEGY || "memory"
 
 class ProductService {
   private inMemoryProducts: Product[] = []
@@ -21,7 +22,7 @@ class ProductService {
   // -------------------
 
   async createProduct(input: CreateProduct): Promise<Product> {
-    if (STRATEGY === "memory") {
+    if (process.env.PRODUCT_SEED_STRATEGY === "memory") {
       const newProduct: Product = {
         id: this.inMemoryProducts.length + 1,
         created_at: new Date().toISOString(),
@@ -38,19 +39,19 @@ class ProductService {
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
-    if (STRATEGY === "memory") {
+    if (process.env.PRODUCT_SEED_STRATEGY === "memory") {
       return this.inMemoryProducts.find(p => p.id === id)
     }
     return dbGetProduct(id)
   }
 
   async listProducts(): Promise<Product[]> {
-    if (STRATEGY === "memory") return this.inMemoryProducts
+    if (process.env.PRODUCT_SEED_STRATEGY === "memory") return this.inMemoryProducts
     return dbListProducts()
   }
 
   async updateProduct(input: UpdateProduct & { collection_id?: collection_id }): Promise<Product> {
-    if (STRATEGY === "memory") {
+    if (process.env.PRODUCT_SEED_STRATEGY === "memory") {
       const index = this.inMemoryProducts.findIndex(p => p.id === input.id)
       if (index === -1) throw new Error(`Product ${input.id} not found in memory`)
 
@@ -77,7 +78,7 @@ class ProductService {
   }
 
   async deleteProduct(id: number): Promise<Product | undefined> {
-    if (STRATEGY === "memory") {
+    if (process.env.PRODUCT_SEED_STRATEGY === "memory") {
       const index = this.inMemoryProducts.findIndex(p => p.id === id)
       if (index === -1) throw new Error(`Product ${id} not found in memory`)
       const [deleted] = this.inMemoryProducts.splice(index, 1)
@@ -86,33 +87,42 @@ class ProductService {
     return dbDeleteProduct(id)
   }
 
-  // -------------------
-  // Seed Products
-  // -------------------
-
-  async seedProducts(products: CreateProduct[]): Promise<Product[]> {
-    if (STRATEGY === "memory") {
-      this.inMemoryProducts = products.map((p, index) => ({
-        id: this.inMemoryProducts.length + index + 1,
-        created_at: new Date().toISOString(),
+  async addProductIntoCollection(product_id: number, collection_id: number): Promise<Product> {
+    if (process.env.PRODUCT_SEED_STRATEGY === "memory") {
+      const product = this.inMemoryProducts.find(p => p.id === product_id)
+      if (!product) throw new Error(`Product ${product_id} not found in memory`)
+      // Assign collection_id
+      const updated: Product = {
+        ...product,
+        collection_id,
         updated_at: new Date().toISOString(),
-        ...p,
-        length: p.length !== undefined ? p.length.toString() : undefined,
-        price: p.price.toString(),
-      }))
-      console.log(`[ProductService] Seeded ${products.length} products in memory`)
-      return this.inMemoryProducts
-    } else if (STRATEGY === "db") {
-      const created: Product[] = []
-      for (const p of products) {
-        const product = await dbCreateProduct(p)
-        created.push(product)
       }
-      console.log(`[ProductService] Seeded ${products.length} products in DB`)
-      return created
-    } else {
-      throw new Error(`[ProductService] Unknown strategy: ${STRATEGY}`)
+      const index = this.inMemoryProducts.findIndex(p => p.id === product_id)
+      this.inMemoryProducts[index] = updated
+      return updated
     }
+
+    // DB path
+    return dbAddProductIntoCollection(product_id, collection_id)
+  }
+
+  async removeProductFromCollection(product_id: number): Promise<Product> {
+    if (process.env.PRODUCT_SEED_STRATEGY === "memory") {
+      const product = this.inMemoryProducts.find(p => p.id === product_id)
+      if (!product) throw new Error(`Product ${product_id} not found in memory`)
+      // Remove collection_id
+      const updated: Product = {
+        ...product,
+        collection_id: undefined,
+        updated_at: new Date().toISOString(),
+      }
+      const index = this.inMemoryProducts.findIndex(p => p.id === product_id)
+      this.inMemoryProducts[index] = updated
+      return updated
+    }
+
+    // DB path
+    return dbRemoveProductFromCollection(product_id)
   }
 
   clearMemory() {

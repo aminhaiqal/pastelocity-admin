@@ -118,22 +118,6 @@ describe('ProductService (memory strategy)', () => {
     await expect(productService.deleteProduct(999)).rejects.toThrow('Product 999 not found in memory')
   })
 
-  it('should seed multiple products', async () => {
-    const seedData: CreateProduct[] = [
-      { name: 'Seed 1', quantity: 1, price: 10, description: 'Seed Desc 1', cutting_type: 'Standard' },
-      { name: 'Seed 2', quantity: 2, price: 20, description: 'Seed Desc 2', cutting_type: 'Standard' },
-    ]
-
-    const seeded = await productService.seedProducts(seedData)
-
-    expect(seeded).toHaveLength(2)
-    expect(seeded[0].name).toBe('Seed 1')
-    expect(seeded[1].name).toBe('Seed 2')
-
-    const all = await productService.listProducts()
-    expect(all).toHaveLength(2)
-  })
-
   it('should return undefined for non-existent id', async () => {
     const fetched = await productService.getProduct(999)
     expect(fetched).toBeUndefined()

@@ -30,10 +30,6 @@ const productSchema = z.object({
   quantity: z.number().min(0, { message: "Quantity must be >= 0" }),
   price: z.number().min(0, { message: "Price must be >= 0" }),
   cutting_type: z.nativeEnum(cutting_type),
-  image_url: z
-    .string()
-    .optional()
-    .refine((val) => !val || val.trim() !== "", { message: "Image filename is required" }),
 })
 
 type ProductFormValues = z.infer<typeof productSchema>
@@ -49,13 +45,16 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
-    defaultValues: initialData || {
+    defaultValues: {
+      collection_id: undefined as any,
       name: "",
+      description: "",
       color: "",
       length: 0,
       quantity: 0,
       price: 0,
-      image_url: "",
+      cutting_type: undefined as any,
+      ...initialData,
     },
   })
 
@@ -83,55 +82,64 @@ export function ProductForm({ initialData, onSubmit, isSubmitting = false }: Pro
   }
 
   const quantityOptions = [1, 5, 10, 50, "Other"] as const
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
 
-        {/* Collection */}
-        <FormField
-          control={form.control}
-          name="collection_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Collection</FormLabel>
-              <FormControl>
-                <Select
-                  value={field.value?.toString() || ""}
-                  onValueChange={(val) => field.onChange(parseInt(val))}
-                  disabled={collectionsLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={collectionsLoading ? "Loading..." : "Select collection"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {collections.map((c) => (
-                      <SelectItem key={c.id} value={c.id.toString()}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Collection */}
+          <FormField
+            control={form.control}
+            name="collection_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Collection</FormLabel>
+                <FormControl>
+                  <Select
+                    value={field.value ? field.value.toString() : ""}
+                    onValueChange={(val) => field.onChange(parseInt(val))}
+                    disabled={collectionsLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          collectionsLoading
+                            ? "Loading..."
+                            : field.value
+                              ? collections.find((c) => c.id === field.value)?.name
+                              : "Select collection"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {collections.map((c) => (
+                        <SelectItem key={c.id} value={c.id.toString()}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Name */}
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Red Cotton Fabric" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          {/* Name */}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Red Cotton Fabric" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         {/* Description */}
         <FormField

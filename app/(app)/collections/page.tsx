@@ -93,7 +93,6 @@ export default function CollectionsPage() {
             {editingCollection && (
               <FileUploader
                 collectionSlug={editingCollection.slug}
-                onFileUploaded={url => { editingCollection.image = url }}
               />
             )}
 

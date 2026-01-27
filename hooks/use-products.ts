@@ -7,6 +7,8 @@ import {
   createProductAction,
   updateProductAction,
   deleteProductAction,
+  addProductIntoCollectionAction,
+  removeProductFromCollectionAction,
 } from "@/actions/products"
 
 export function useProducts() {
@@ -23,11 +25,12 @@ export function useProducts() {
 
   // Create product
   function createProduct(input: CreateProduct) {
-    console.log(input)
+    let created: Product
     startTransition(async () => {
       const created = await createProductAction(input)
       setProducts((prev) => [...prev, created])
     })
+    return created!
   }
 
   // Update product
@@ -54,5 +57,41 @@ export function useProducts() {
     createProduct,
     updateProduct,
     deleteProduct,
+  }
+}
+
+export function useCollectionAssignment() {
+  const [isPending, startTransition] = useTransition()
+  const [assignments, setAssignments] = useState<Record<number, number>>({}) 
+  // key = product_id, value = collection_id
+
+  // Assign product to collection
+  function assignProduct(product_id: number, collection_id: number) {
+    startTransition(async () => {
+      await addProductIntoCollectionAction(product_id, collection_id)
+      setAssignments((prev) => ({
+        ...prev,
+        [product_id]: collection_id,
+      }))
+    })
+  }
+
+  // Remove product from collection
+  function removeProduct(product_id: number) {
+    startTransition(async () => {
+      await removeProductFromCollectionAction(product_id)
+      setAssignments((prev) => {
+        const newAssignments = { ...prev }
+        delete newAssignments[product_id]
+        return newAssignments
+      })
+    })
+  }
+
+  return {
+    assignments,
+    isPending,
+    assignProduct,
+    removeProduct,
   }
 }
