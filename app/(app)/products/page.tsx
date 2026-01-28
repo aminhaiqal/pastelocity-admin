@@ -33,8 +33,9 @@ export default function ProductsPage() {
     try {
       const result = await addOrEditProduct({ values, editingProduct })
       toast.success(result.message)
-      setEditingProduct(null)
-      setOpen(false)
+      const savedProduct: Product = result.product
+      setEditingProduct(savedProduct)
+      setOpen(true)
     } catch (err: any) {
       toast.error(err?.message || "Failed to save product")
     }
@@ -91,17 +92,17 @@ export default function ProductsPage() {
                 <DialogTitle>{editingProduct ? "Edit Product" : "New Product"}</DialogTitle>
               </DialogHeader>
 
-              {editingProduct && (
-                <FileUploader
-                  uploadPath={`${collectionMap[editingProduct.collection_id].slug}/${editingProduct.slug}`}
-                />
-              )}
-
               <ProductForm
                 initialData={editingProduct ? productToFormValues(editingProduct) : undefined}
                 onSubmit={handleFormSubmit}
                 isSubmitting={isLoading}
               />
+              
+              {editingProduct && (
+                <FileUploader
+                  uploadPath={`${collectionMap[editingProduct.collection_id].slug}/${editingProduct.slug}`}
+                />
+              )}
             </DialogContent>
           </Dialog>
         </div>

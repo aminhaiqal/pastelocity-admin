@@ -31,8 +31,10 @@ export default function CollectionsPage() {
       })
 
       toast.success(result.message)
-      setEditingCollection(null)
-      setOpen(false)
+      const savedCollection: Collection = result.collection
+
+      setEditingCollection(savedCollection)
+      setOpen(true)
     } catch (err: any) {
       toast.error(err?.message || "Failed to save collection")
     }
@@ -85,17 +87,18 @@ export default function CollectionsPage() {
               </DialogTitle>
             </DialogHeader>
 
+            <CollectionForm
+              initialData={editingCollection || undefined}
+              onSubmit={handleFormSubmit}
+              isSubmitting={isLoading}
+            />
+            
             {editingCollection && (
               <FileUploader
                 uploadPath={editingCollection.slug}
               />
             )}
 
-            <CollectionForm
-              initialData={editingCollection || undefined}
-              onSubmit={handleFormSubmit}
-              isSubmitting={isLoading}
-            />
           </DialogContent>
         </Dialog>
       </div>
