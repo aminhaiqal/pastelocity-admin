@@ -11,23 +11,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { IconPlus } from "@tabler/icons-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { useCollections } from "@/hooks/use-collections"
 import { Collection } from "@/domains/catalog"
 import { addOrEditCollection } from "@/domains/catalog/use_cases/collection.usecase"
 import FileUploader from "@/components/FileUploader/file-uploader"
+import { useCollectionStore } from "@/stores/collection.store"
 
 export default function CollectionsPage() {
-  const {
-    collections,
-    isLoading,
-    deleteCollection,
-  } = useCollections()
-
+  const { collections, isLoading, fetchCollections, deleteCollection } = useCollectionStore()
   const [open, setOpen] = useState(false)
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null)
 
+  useEffect(() => {
+    fetchCollections()
+  }, [])
+  
   const handleFormSubmit = async (values: CollectionFormValues) => {
     try {
       const result = await addOrEditCollection({
@@ -55,7 +54,7 @@ export default function CollectionsPage() {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this collection?")) return
     try {
-      await deleteCollection.mutateAsync(id)
+      await deleteCollection(id)
       toast.success("Collection deleted")
     } catch (err: any) {
       console.error(err)
@@ -92,7 +91,7 @@ export default function CollectionsPage() {
 
             {editingCollection && (
               <FileUploader
-                collectionSlug={editingCollection.slug}
+                uploadPath={editingCollection.slug}
               />
             )}
 

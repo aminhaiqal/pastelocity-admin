@@ -9,10 +9,10 @@ import { filterTopLevelFiles, extractPathFromUrl, sanitizeFileName } from "./uti
 import { sanitizeText } from "@/utils/helper"
 
 interface FileUploaderProps {
-  collectionSlug?: string
+  uploadPath?: string
 }
 
-export default function FileUploader({ collectionSlug }: FileUploaderProps) {
+export default function FileUploader({ uploadPath }: FileUploaderProps) {
   const [localFiles, setLocalFiles] = useState<File[]>([])
   const [remoteFiles, setRemoteFiles] = useState<string[]>([])
   const [isDragActive, setIsDragActive] = useState(false)
@@ -20,14 +20,14 @@ export default function FileUploader({ collectionSlug }: FileUploaderProps) {
 
   // Fetch remote files
   useEffect(() => {
-    if (!collectionSlug) return
+    if (!uploadPath) return
     const fetchFiles = async () => {
       setIsLoading(true)
       try {
-        const res = await fetch(`/api/files/${collectionSlug}?list=true`)
+        const res = await fetch(`/api/files/${uploadPath}?list=true`)
         if (!res.ok) throw new Error("Failed to fetch remote files")
         const data: { url: string }[] = await res.json()
-        const topLevel = filterTopLevelFiles(data, collectionSlug)
+        const topLevel = filterTopLevelFiles(data, uploadPath)
         setRemoteFiles(topLevel.map(f => f.url))
       } catch (err) {
         console.error(err)
@@ -36,18 +36,18 @@ export default function FileUploader({ collectionSlug }: FileUploaderProps) {
       }
     }
     fetchFiles()
-  }, [collectionSlug])
+  }, [uploadPath])
 
   // Upload handler
   const handleUpload = async () => {
-    if (!localFiles.length || !collectionSlug) return
+    if (!localFiles.length || !uploadPath) return
     try {
       setIsLoading(true)
       const formData = new FormData()
       localFiles.forEach(file => {
       const safeName = sanitizeText(file.name)
       formData.append("file", file)
-      formData.append("path", `${collectionSlug}/${safeName}`)
+      formData.append("path", `${uploadPath}/${safeName}`)
     })
       const res = await fetch("/api/files/upload", { method: "POST", body: formData })
       if (!res.ok) throw new Error("Upload failed")
@@ -66,11 +66,11 @@ export default function FileUploader({ collectionSlug }: FileUploaderProps) {
   // Remove handlers
   const removeLocalFile = (index: number) => setLocalFiles(prev => prev.filter((_, i) => i !== index))
   const removeRemoteFile = async (index: number) => {
-    if (!collectionSlug) return
-    const path = extractPathFromUrl(remoteFiles[index], collectionSlug)
+    if (!uploadPath) return
+    const path = extractPathFromUrl(remoteFiles[index], uploadPath)
     try {
       setIsLoading(true)
-      const res = await fetch(`/api/files/${collectionSlug}`, {
+      const res = await fetch(`/api/files/${uploadPath}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ path }),

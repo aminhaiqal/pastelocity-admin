@@ -6,7 +6,8 @@ export type collection_id = number
 // -----------------------------
 export interface Product {
   id: ProductId
-  collection_id?: collection_id
+  collection_id: collection_id
+  slug: string
   name: string
   description: string
   color?: string
@@ -14,7 +15,6 @@ export interface Product {
   quantity: number
   price: string
   cutting_type: string
-  image_url?: string
   created_at: string
   updated_at: string
 }
@@ -28,7 +28,7 @@ export interface CreateProduct {
   price: number
   cutting_type: string
   image_url?: string
-  collection_id?: collection_id
+  collection_id: collection_id
 }
 
 export interface UpdateProduct extends Partial<CreateProduct> {

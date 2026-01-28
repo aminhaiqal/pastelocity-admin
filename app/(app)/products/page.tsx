@@ -19,20 +19,15 @@ import { productToFormValues } from "@/utils/mapper"
 import FileUploader from "@/components/FileUploader/file-uploader"
 import { useAddOrEditProduct } from "@/domains/catalog/use_cases/product.usecase"
 import { useProductStore } from "@/stores/product.store"
+import { useCollectionStore } from "@/stores/collection.store"
 
 export default function ProductsPage() {
-  const { products, fetchProducts, deleteProduct, isLoading } = useProductStore()
+  const { collectionMap } = useCollectionStore()
+  const { products, deleteProduct, isLoading } = useProductStore()
   const { addOrEditProduct } = useAddOrEditProduct()
   const [open, setOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
-
-  useEffect(() => {
-    fetchProducts().catch((err) => {
-      console.error("Failed to fetch products", err)
-      toast.error("Failed to load products")
-    })
-  }, [])
   
   const handleFormSubmit = async (values: ProductFormValues) => {
     try {
@@ -98,7 +93,7 @@ export default function ProductsPage() {
 
               {editingProduct && (
                 <FileUploader
-                  collectionSlug={editingProduct.name}
+                  uploadPath={`${collectionMap[editingProduct.collection_id]?.slug}/${editingProduct.slug}`}
                 />
               )}
 
