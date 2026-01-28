@@ -19,13 +19,9 @@ import FileUploader from "@/components/FileUploader/file-uploader"
 import { useCollectionStore } from "@/stores/collection.store"
 
 export default function CollectionsPage() {
-  const { collections, isLoading, fetchCollections, deleteCollection } = useCollectionStore()
+  const { collections, isLoading, deleteCollection } = useCollectionStore()
   const [open, setOpen] = useState(false)
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null)
-
-  useEffect(() => {
-    fetchCollections()
-  }, [])
   
   const handleFormSubmit = async (values: CollectionFormValues) => {
     try {

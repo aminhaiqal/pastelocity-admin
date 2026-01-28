@@ -93,7 +93,7 @@ export default function ProductsPage() {
 
               {editingProduct && (
                 <FileUploader
-                  uploadPath={`${collectionMap[editingProduct.collection_id]?.slug}/${editingProduct.slug}`}
+                  uploadPath={`${collectionMap[editingProduct.collection_id].slug}/${editingProduct.slug}`}
                 />
               )}
 
