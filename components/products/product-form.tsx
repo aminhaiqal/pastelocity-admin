@@ -18,7 +18,7 @@ import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import React from "react"
 import { cutting_type } from "@/enums"
-import { useCollections } from "@/hooks/use-collections"
+import { useCollectionStore } from "@/stores/collection.store"
 
 // Validation schema
 const productSchema = z.object({
@@ -41,7 +41,7 @@ type ProductFormProps = {
 }
 
 export function ProductForm({ initialData, onSubmit, isSubmitting = false }: ProductFormProps) {
-  const { collections, isLoading: collectionsLoading } = useCollections()
+  const {collections, isLoading: collectionsLoading} = useCollectionStore()
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
