@@ -1,43 +1,37 @@
 import { ProductFormValues } from "@/components/products/product-form"
-import { useCollectionAssignment, useProducts } from "@/hooks/use-products"
+import { useProductStore } from "@/stores/product.store"
 
 interface AddOrEditProductParams {
   values: ProductFormValues
-  editingProduct: any | null
+  editingProduct: { id: number } | null
 }
 
 export function useAddOrEditProduct() {
-  const { createProduct, updateProduct } = useProducts()
-  const { assignProduct, removeProduct } = useCollectionAssignment()
+  const {
+    createProduct,
+    updateProduct,
+    assignCollection,
+    removeCollection,
+  } = useProductStore()
 
   async function addOrEditProduct({ values, editingProduct }: AddOrEditProductParams) {
-    try {
-      if (editingProduct) {
-        // Update product
-        await updateProduct(editingProduct.id, values)
+    let productId: number
 
-        // Update collection assignment
-        if (values.collection_id) {
-          await assignProduct(editingProduct.id, values.collection_id)
-        } else {
-          await removeProduct(editingProduct.id)
-        }
+    if (editingProduct) {
+      const updated = await updateProduct(editingProduct.id, values)
+      productId = updated.id
 
-        return { message: "Product updated" }
-      } else {
-        // Create product
-        const newProduct = await createProduct(values)
+      if (values.collection_id) await assignCollection(productId, values.collection_id)
+      else await removeCollection(productId)
 
-        // Assign collection if exists
-        if (values.collection_id) {
-          await assignProduct(newProduct.id, values.collection_id)
-        }
+      return { message: "Product updated", product: updated }
+    } else {
+      const newProduct = await createProduct(values)
+      productId = newProduct.id
 
-        return { message: "Product added" }
-      }
-    } catch (err: any) {
-      console.error(err)
-      throw new Error(err?.message || "Failed to save product")
+      if (values.collection_id) await assignCollection(productId, values.collection_id)
+
+      return { message: "Product added", product: newProduct }
     }
   }
 

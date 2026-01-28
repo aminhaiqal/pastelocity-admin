@@ -11,29 +11,32 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { IconPlus } from "@tabler/icons-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { CollectionSearchBar } from "@/components/products/collection-search-bar"
-import { useProducts } from "@/hooks/use-products"
 import { Product } from "@/domains/catalog"
 import { toast } from "sonner"
 import { productToFormValues } from "@/utils/mapper"
 import FileUploader from "@/components/FileUploader/file-uploader"
 import { useAddOrEditProduct } from "@/domains/catalog/use_cases/product.usecase"
+import { useProductStore } from "@/stores/product.store"
 
 export default function ProductsPage() {
+  const { products, fetchProducts, deleteProduct, isLoading } = useProductStore()
   const { addOrEditProduct } = useAddOrEditProduct()
-  const { products, deleteProduct, isPending } = useProducts()
   const [open, setOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
 
+  useEffect(() => {
+    fetchProducts().catch((err) => {
+      console.error("Failed to fetch products", err)
+      toast.error("Failed to load products")
+    })
+  }, [])
+  
   const handleFormSubmit = async (values: ProductFormValues) => {
     try {
-      const result = await addOrEditProduct({
-        values,
-        editingProduct,
-      })
-
+      const result = await addOrEditProduct({ values, editingProduct })
       toast.success(result.message)
       setEditingProduct(null)
       setOpen(false)
@@ -42,7 +45,6 @@ export default function ProductsPage() {
     }
   }
 
-  // Edit button clicked on card
   const handleEdit = (id: number) => {
     const product = products.find((p) => p.id === id)
     if (!product) return
@@ -50,7 +52,6 @@ export default function ProductsPage() {
     setOpen(true)
   }
 
-  // Delete button clicked on card
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this product?")) return
     try {
@@ -104,7 +105,7 @@ export default function ProductsPage() {
               <ProductForm
                 initialData={editingProduct ? productToFormValues(editingProduct) : undefined}
                 onSubmit={handleFormSubmit}
-                isSubmitting={isPending}
+                isSubmitting={isLoading}
               />
             </DialogContent>
           </Dialog>
@@ -115,13 +116,7 @@ export default function ProductsPage() {
       <ProductGrid
         products={products}
         selectedIds={selectedIds}
-        onSelect={(id) =>
-          setSelectedIds((prev) =>
-            prev.includes(id)
-              ? prev.filter((i) => i !== id)
-              : [...prev, id]
-          )
-        }
+        onSelect={(id) => setSelectedIds((prev) => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
