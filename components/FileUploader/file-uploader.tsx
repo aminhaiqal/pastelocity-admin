@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import Dropzone from "./dropzone"
 import FileList from "./file-list"
 import FileActions from "./file-actions"
-import { filterTopLevelFiles, extractPathFromUrl, sanitizeFileName } from "./utils"
+import { filterTopLevelFiles, extractPathFromUrl, sanitizeFileName, fetchRemoteFiles } from "./utils"
 import { sanitizeText } from "@/utils/helper"
 
 interface FileUploaderProps {
@@ -21,20 +21,20 @@ export default function FileUploader({ uploadPath }: FileUploaderProps) {
   // Fetch remote files
   useEffect(() => {
     if (!uploadPath) return
+
     const fetchFiles = async () => {
       setIsLoading(true)
       try {
-        const res = await fetch(`/api/files/${uploadPath}?list=true`)
-        if (!res.ok) throw new Error("Failed to fetch remote files")
-        const data: { url: string }[] = await res.json()
-        const topLevel = filterTopLevelFiles(data, uploadPath)
-        setRemoteFiles(topLevel.map(f => f.url))
+        // Pass allowed extensions if you want, or omit for all files
+        const files = await fetchRemoteFiles(uploadPath, [".png", ".jpg", ".jpeg", ".gif", ".webp"])
+        setRemoteFiles(files)
       } catch (err) {
-        console.error(err)
+        console.error("Failed to fetch remote files:", err)
       } finally {
         setIsLoading(false)
       }
     }
+
     fetchFiles()
   }, [uploadPath])
 
