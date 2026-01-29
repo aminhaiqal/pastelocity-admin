@@ -1,16 +1,21 @@
 import { FileRepository } from "./file.repository"
+import { Readable } from "stream"
+
 
 export class UploadFileUseCase {
   constructor(private readonly repo: FileRepository) {}
 
-  async execute(
-    buffer: Buffer,
-    path: string,
-    mimeType: string
-  ) {
+  // Existing buffer-based upload
+  async execute(buffer: Buffer, path: string, mimeType: string) {
     return this.repo.upload(buffer, path, mimeType)
   }
+
+  // New streaming upload
+  async executeStream(stream: Readable, path: string, mimeType: string) {
+    return this.repo.uploadStream(stream, path, mimeType)
+  }
 }
+
 
 export class DownloadFileUseCase {
   constructor(private readonly repo: FileRepository) {}

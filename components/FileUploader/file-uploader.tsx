@@ -5,14 +5,15 @@ import { Card, CardContent } from "@/components/ui/card"
 import Dropzone from "./dropzone"
 import FileList from "./file-list"
 import FileActions from "./file-actions"
-import { filterTopLevelFiles, extractPathFromUrl, sanitizeFileName, fetchRemoteFiles } from "./utils"
+import { extractPathFromUrl, fetchRemoteFiles } from "./utils"
 import { sanitizeText } from "@/utils/helper"
 
 interface FileUploaderProps {
   uploadPath?: string
+  onUploadComplete?: () => void
 }
 
-export default function FileUploader({ uploadPath }: FileUploaderProps) {
+export default function FileUploader({ uploadPath, onUploadComplete }: FileUploaderProps) {
   const [localFiles, setLocalFiles] = useState<File[]>([])
   const [remoteFiles, setRemoteFiles] = useState<string[]>([])
   const [isDragActive, setIsDragActive] = useState(false)
@@ -25,7 +26,6 @@ export default function FileUploader({ uploadPath }: FileUploaderProps) {
     const fetchFiles = async () => {
       setIsLoading(true)
       try {
-        // Pass allowed extensions if you want, or omit for all files
         const files = await fetchRemoteFiles(uploadPath, [".png", ".jpg", ".jpeg", ".gif", ".webp"])
         setRemoteFiles(files)
       } catch (err) {
@@ -45,16 +45,23 @@ export default function FileUploader({ uploadPath }: FileUploaderProps) {
       setIsLoading(true)
       const formData = new FormData()
       localFiles.forEach(file => {
-      const safeName = sanitizeText(file.name)
-      formData.append("file", file)
-      formData.append("path", `${uploadPath}/${safeName}`)
-    })
+        const safeName = sanitizeText(file.name)
+        formData.append("file", file)
+        formData.append("path", `${uploadPath}/${safeName}`)
+      })
+
       const res = await fetch("/api/files/upload", { method: "POST", body: formData })
       if (!res.ok) throw new Error("Upload failed")
+
       const uploaded = await res.json()
       const uploadedUrls = Array.isArray(uploaded) ? uploaded : [uploaded]
+
+      // Update local remote files
       setRemoteFiles(prev => [...prev, ...uploadedUrls])
       setLocalFiles([])
+
+      // Notify parent
+      if (onUploadComplete) onUploadComplete()
     } catch (err) {
       console.error(err)
       alert("Failed to upload files")

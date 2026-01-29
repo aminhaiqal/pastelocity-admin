@@ -1,44 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Product } from "@/domains/catalog"
 import { Button } from "@/components/ui/button"
-import { fetchRemoteFiles } from "../FileUploader/utils"
-import { useCollectionStore } from "@/stores/collection.store"
 
 type Props = {
   product: Product
+  images: string[]
   isSelected: boolean
   onSelect: (id: number) => void
   onEdit?: (id: number) => void
   onDelete?: (id: number) => void
 }
 
-export default function ProductCard({ product, isSelected, onSelect, onEdit, onDelete }: Props) {
-  const collectionMap = useCollectionStore((state) => state.collectionMap)
-  const [images, setImages] = useState<string[]>([])
+export default function ProductCard({product, images, isSelected, onSelect, onEdit, onDelete}: Props) {
+
   const [currentImage, setCurrentImage] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
-
-  const collection = collectionMap[product.collection_id]
-
-  useEffect(() => {
-    const loadImages = async () => {
-      setIsLoading(true)
-      try {
-        // Fetch only image files
-        const urls = await fetchRemoteFiles(`${collection.slug}/${product.slug}`, [".png", ".jpg", ".jpeg", ".gif", ".webp"])
-        setImages(urls)
-      } catch (err) {
-        console.error("Failed to fetch product images:", err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadImages()
-  }, [collection.name, product.name])
-
   const hasMultiple = images.length > 1
 
   const nextImage = (e: React.MouseEvent) => {
@@ -59,9 +36,7 @@ export default function ProductCard({ product, isSelected, onSelect, onEdit, onD
       `}
     >
       <div className="relative w-full h-48 overflow-hidden bg-gray-100 flex items-center justify-center">
-        {isLoading ? (
-          <span className="text-gray-400">Loading...</span>
-        ) : images.length > 0 ? (
+        {images.length > 0 ? (
           <>
             <img
               src={images[currentImage]}
@@ -91,7 +66,9 @@ export default function ProductCard({ product, isSelected, onSelect, onEdit, onD
       </div>
 
       <div className="p-4 flex flex-col gap-1">
-        <h3 className="text-lg font-semibold text-gray-900">{collection.name} - {product.name}</h3>
+        <h3 className="text-lg font-semibold text-gray-900">
+          {product.name}
+        </h3>
         {product.color && <p className="text-sm text-gray-500">Color: {product.color}</p>}
         {product.length && <p className="text-sm text-gray-500">Length: {product.length} inch</p>}
         <p className="text-sm text-gray-500">Quantity: {product.quantity}</p>

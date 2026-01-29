@@ -20,6 +20,7 @@ import FileUploader from "@/components/FileUploader/file-uploader"
 import { useAddOrEditProduct } from "@/domains/catalog/use_cases/product.usecase"
 import { useProductStore } from "@/stores/product.store"
 import { useCollectionStore } from "@/stores/collection.store"
+import { fetchRemoteFiles } from "@/components/FileUploader/utils"
 
 export default function ProductsPage() {
   const { collectionMap } = useCollectionStore()
@@ -28,7 +29,44 @@ export default function ProductsPage() {
   const [open, setOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
-  
+  const [productImages, setProductImages] = useState<Record<number, string[]>>({})
+
+  const loadImagesForProduct = async (product: Product) => {
+    try {
+      const collection = collectionMap[product.collection_id]
+      if (!collection) return
+      const urls = await fetchRemoteFiles(
+        `${collection.slug}/${product.slug}`,
+        [".png", ".jpg", ".jpeg", ".gif", ".webp"]
+      )
+      setProductImages((prev) => ({ ...prev, [product.id]: urls }))
+    } catch (err) {
+      console.error("Failed to fetch images for product", product.id, err)
+    }
+  }
+
+  /** Fetch images for all products on load */
+  useEffect(() => {
+    products.forEach((p) => loadImagesForProduct(p))
+  }, [products, collectionMap])
+
+  const handleUploadComplete = (product: Product) => {
+    if (!product) return
+
+    const collection = collectionMap[product.collection_id]
+    if (!collection) return
+
+    fetchRemoteFiles(
+      `${collection.slug}/${product.slug}`,
+      [".png", ".jpg", ".jpeg", ".gif", ".webp"]
+    ).then(urls => {
+      setProductImages(prev => ({
+        ...prev,
+        [product.id]: urls,
+      }))
+    }).catch(err => console.error("Failed to fetch images after upload", err))
+  }
+
   const handleFormSubmit = async (values: ProductFormValues) => {
     try {
       const result = await addOrEditProduct({ values, editingProduct })
@@ -97,10 +135,13 @@ export default function ProductsPage() {
                 onSubmit={handleFormSubmit}
                 isSubmitting={isLoading}
               />
-              
+
               {editingProduct && (
                 <FileUploader
                   uploadPath={`${collectionMap[editingProduct.collection_id].slug}/${editingProduct.slug}`}
+                  onUploadComplete={() =>
+                    handleUploadComplete(editingProduct)
+                  }
                 />
               )}
             </DialogContent>
@@ -111,6 +152,7 @@ export default function ProductsPage() {
       {/* Product Grid */}
       <ProductGrid
         products={products}
+        productImages={productImages}
         selectedIds={selectedIds}
         onSelect={(id) => setSelectedIds((prev) => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])}
         onEdit={handleEdit}

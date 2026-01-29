@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
 import { MinioFileRepository } from "@/services/minio.service"
 import { UploadFileUseCase } from "@/domains/file/file.usecase"
+import { Readable } from "stream"
 
 export async function POST(req: Request) {
   const formData = await req.formData()
-
   const file = formData.get("file") as File | null
   const path = formData.get("path") as string | null
 
@@ -12,20 +12,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "File is required" }, { status: 400 })
   }
 
-  const objectName = path && !path.includes("..")
-    ? path
-    : file.name
-
-  const buffer = Buffer.from(await file.arrayBuffer())
+  const objectName = path && !path.includes("..") ? path : file.name
 
   const repo = new MinioFileRepository()
   const useCase = new UploadFileUseCase(repo)
 
-  const result = await useCase.execute(
-    buffer,
-    objectName,
-    file.type
-  )
+  // Convert Web ReadableStream to Node Readable
+  const nodeStream = Readable.from(file.stream() as any)
+
+  // Use the executeStream method
+  const result = await useCase.executeStream(nodeStream, objectName, file.type)
 
   return NextResponse.json({
     name: result.name,

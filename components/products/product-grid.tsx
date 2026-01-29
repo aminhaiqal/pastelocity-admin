@@ -5,13 +5,14 @@ import ProductCard from "./product-card"
 
 type Props = {
   products: Product[]
+  productImages: Record<number, string[]>
   selectedIds: number[]
   onSelect: (id: number) => void
   onEdit?: (id: number) => void
   onDelete?: (id: number) => void
 }
 
-export default function ProductGrid({ products, selectedIds, onSelect, onEdit, onDelete }: Props) {
+export default function ProductGrid({ products, productImages, selectedIds, onSelect, onEdit, onDelete }: Props) {
   if (!products || products.length === 0) {
     return (
       <div className="w-full py-20 flex flex-col items-center justify-center text-gray-400">
@@ -26,6 +27,7 @@ export default function ProductGrid({ products, selectedIds, onSelect, onEdit, o
         <ProductCard
           key={product.id}
           product={product}
+          images={productImages[product.id] || []}
           isSelected={selectedIds.includes(product.id)}
           onSelect={onSelect}
           onEdit={onEdit}

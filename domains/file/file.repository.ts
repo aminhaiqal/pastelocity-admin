@@ -1,3 +1,4 @@
+import { Readable } from "stream"
 import { FileObject } from "./file.entity"
 
 export interface FileRepository {
@@ -7,6 +8,12 @@ export interface FileRepository {
     mimeType: string
   ): Promise<FileObject>
 
+    uploadStream(
+    stream: Readable,
+    path: string,
+    mimeType: string
+  ): Promise<FileObject>
+  
   getStream(path: string): Promise<NodeJS.ReadableStream>
 
   list(prefix?: string): Promise<FileObject[]>
