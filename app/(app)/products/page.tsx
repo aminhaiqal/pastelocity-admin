@@ -45,7 +45,6 @@ export default function ProductsPage() {
     }
   }
 
-  /** Fetch images for all products on load */
   useEffect(() => {
     products.forEach((p) => loadImagesForProduct(p))
   }, [products, collectionMap])
